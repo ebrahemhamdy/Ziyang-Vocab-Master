@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>GRE 基础24套 PDF 词库解析器 → V14 CSV</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f7;
+      color: #222;
+    }
+    .container {
+      max-width: 1080px;
+      margin: 24px auto 40px;
+      padding: 24px 24px 32px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+    }
+    h1 {
+      font-size: 22px;
+      margin: 0 0 8px;
+      color: #111827;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 24px 0 12px;
+      color: #111827;
+    }
+    p {
+      margin: 4px 0 8px;
+      font-size: 14px;
+      color: #4b5563;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 10px;
+      padding: 12px 14px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+    }
+    input[type="file"] {
+      font-size: 13px;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.1s ease, opacity 0.1s ease;
+    }
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    #parseBtn {
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35);
+    }
+    #parseBtn:disabled {
+      background: #93c5fd;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    #exportBtn {
+      background: #10b981;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+    }
+    #exportBtn:disabled {
+      background: #a7f3d0;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    #fileInfo {
+      font-size: 13px;
+      color: #374151;
+      margin-top: 4px;
+    }
+    .summary {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 10px 12px 12px;
+      max-height: 260px;
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    thead {
+      position: sticky;
+      top: 0;
+      background: #f3f4f6;
+      z-index: 1;
+    }
+    th, td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      white-space: nowrap;
+    }
+    th {
+      font-weight: 600;
+      color: #374151;
+    }
+    tr:nth-child(even) td {
+      background: #f9fafb;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    td.notes {
+      white-space: normal;
+      max-width: 360px;
+    }
+    #log {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #0b1120;
+      color: #e5e7eb;
+      padding: 10px 12px;
+      font-size: 12px;
+      max-height: 260px;
+      overflow: auto;
+      line-height: 1.4;
+    }
+    #log span.time {
+      color: #9ca3af;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #eef2ff;
+      color: #3730a3;
+      margin-left: 8px;
+    }
+    @media (max-width: 720px) {
+      .container {
+        margin: 12px;
+        padding: 16px 14px 22px;
+      }
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>GRE 基础24套 PDF 词库解析器 → V14 CSV
+      <span class="badge">仅本地运行 · 不上传文件</span>
+    </h1>
+    <p>
+      使用方法：① 选择 <strong>基础24套（1-6）手拍.pdf</strong>（或同结构 PDF） → ② 点击「解析 PDF」 → ③ 核对下面的分套词数 → ④ 点击「导出 CSV」，并在单词工厂 V14 中「导入并保存」。
+    </p>
+
+    <div class="controls">
+      <input type="file" id="pdfFile" accept="application/pdf" />
+      <button id="parseBtn" disabled>解析 PDF</button>
+      <button id="exportBtn" disabled>导出 CSV（V14 可导入）</button>
+    </div>
+    <div id="fileInfo"></div>
+
+    <h2>分套解析摘要</h2>
+    <div class="summary">
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>套数</th>
+            <th>核心词汇（解析 / 原书）</th>
+            <th>基础补充（解析 / 原书）</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- filled by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <h2>解析日志</h2>
+    <pre id="log"></pre>
+  </div>
+
+  <!-- pdf.js CDN（经典 2.x 版本，提供全局 pdfjsLib） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script>
+    if (window['pdfjsLib']) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+    }
+
+    (function () {
+      "use strict";
+
+      const fileInput = document.getElementById("pdfFile");
+      const parseBtn = document.getElementById("parseBtn");
+      const exportBtn = document.getElementById("exportBtn");
+      const logEl = document.getElementById("log");
+      const summaryTableBody = document.querySelector("#summaryTable tbody");
+      const fileInfoEl = document.getElementById("fileInfo");
+
+      let entriesMap = new Map(); // key: lowercased word, value: entry object
+      let summaryRows = [];
+      let currentFileName = "";
+
+// 常见停用词 & 噪音单词（例句、题干中高频出现，但不应作为 GRE 词头）
+const STOPWORDS = new Set([
+  "is","are","was","were","am","be","been","being",
+  "have","has","had","do","does","did",
+  "can","could","will","would","should","may","might","must","shall",
+  "the","a","an","of","to","in","on","at","for","by","with","about","from",
+  "and","but","or","as",
+  "that","this","these","those","it","its",
+  "he","she","they","we","you","your","our","their","him","her","them",
+  "who","whom","which","what","when","where","why","how",
+  "page","pages","source","section","following","table","passage","question","choice","choices","blank"
+]);
+
+// 判断一个候选词是否“噪音”：长度 < 3 或出现在停用词表中
+function isNoisyHeadword(word) {
+  if (!word) return true;
+  const w = String(word).toLowerCase();
+  if (w.length < 3) return true;
+  return STOPWORDS.has(w);
+}
+
+      function log(message) {
+        const now = new Date();
+        const ts = now.toLocaleTimeString();
+        const line = document.createElement("div");
+        const spanTime = document.createElement("span");
+        spanTime.className = "time";
+        spanTime.textContent = "[" + ts + "] ";
+        line.appendChild(spanTime);
+        line.appendChild(document.createTextNode(message));
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function resetStateForNewFile() {
+        entriesMap.clear();
+        summaryRows = [];
+        summaryTableBody.innerHTML = "";
+        logEl.textContent = "";
+      }
+
+      fileInput.addEventListener("change", function (e) {
+        const file = e.target.files && e.target.files[0];
+        resetStateForNewFile();
+        if (!file) {
+          fileInfoEl.textContent = "";
+          parseBtn.disabled = true;
+          exportBtn.disabled = true;
+          return;
+        }
+        currentFileName = file.name;
+        const mb = (file.size / (1024 * 1024)).toFixed(2);
+        fileInfoEl.textContent = "已选择文件：" + file.name + "（约 " + mb + " MB）";
+        parseBtn.disabled = false;
+        exportBtn.disabled = true;
+        log("已选择 PDF 文件，请点击「解析 PDF」。");
+      });
+
+      parseBtn.addEventListener("click", function () {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+          alert("请先选择 PDF 文件。");
+          return;
+        }
+        if (!window["pdfjsLib"]) {
+          alert("pdf.js 加载失败，请确认网络可以访问 cdnjs。");
+          return;
+        }
+
+        parseBtn.disabled = true;
+        exportBtn.disabled = true;
+        entriesMap.clear();
+        summaryRows = [];
+        summaryTableBody.innerHTML = "";
+        logEl.textContent = "";
+        log("开始读取 PDF …");
+
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const typedarray = new Uint8Array(ev.target.result);
+          pdfjsLib
+            .getDocument({ data: typedarray })
+            .promise.then(async function (pdf) {
+              log("PDF 加载成功，共 " + pdf.numPages + " 页。");
+              const fullTextParts = [];
+              for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                try {
+                  const page = await pdf.getPage(pageNum);
+                  const textContent = await page.getTextContent();
+                  const pageText = textContent.items
+                    .map((it) => it.str)
+                    .join("\n");
+                  fullTextParts.push(pageText);
+                  log("第 " + pageNum + " 页文本提取完成。");
+                } catch (err) {
+                  console.error(err);
+                  log("第 " + pageNum + " 页提取失败：" + (err.message || err));
+                }
+              }
+              const fullText = fullTextParts.join(
+                "\n\n---PAGE BREAK---\n\n"
+              );
+              log("PDF 文本提取完成，开始解析结构 …");
+              processFullText(fullText);
+              updateSummaryTable();
+              log("解析完成，共得到 " + entriesMap.size + " 个不同单词（去重后）。");
+              if (entriesMap.size > 0) {
+                exportBtn.disabled = false;
+              }
+              parseBtn.disabled = false;
+            })
+            .catch(function (err) {
+              console.error(err);
+              parseBtn.disabled = false;
+              alert("解析 PDF 失败：" + (err.message || err));
+            });
+        };
+        reader.onerror = function (err) {
+          console.error(err);
+          parseBtn.disabled = false;
+          alert("读取文件失败：" + (err.message || err));
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      exportBtn.addEventListener("click", function () {
+        if (!entriesMap || entriesMap.size === 0) {
+          alert("当前没有可导出的数据，请先解析 PDF。");
+          return;
+        }
+        const entries = Array.from(entriesMap.values());
+        const csvText = buildCsv(entries);
+        const blob = new Blob([csvText], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const baseName = currentFileName
+          ? currentFileName.replace(/\.pdf$/i, "")
+          : "gre_词库";
+        a.href = url;
+        a.download = baseName + "_words_for_V14.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        log("CSV 导出完成，可以到单词工厂 V14 里导入。");
+      });
+
+
+      function processFullText(fullText) {
+        entriesMap.clear();
+        summaryRows = [];
+
+        let text = fullText || "";
+        // 轻度清洗：去掉常见不可见空格
+        text = text.replace(/\u00A0/g, " ");
+
+        const anchorCore = "核心词汇考法精析";
+        const anchorSupp = "基础单词补充";
+
+        const corePositions = [];
+        let searchIdx = 0;
+        while (true) {
+          const idx = text.indexOf(anchorCore, searchIdx);
+          if (idx === -1) break;
+          corePositions.push(idx);
+          searchIdx = idx + anchorCore.length;
+        }
+
+        if (corePositions.length === 0) {
+          log("没有直接找到“核心词汇考法精析”标题，将只尝试解析带词性的基础补充条目（可能丢失纯单词清单）。");
+          // 备用：不按套，仅按整本 PDF 解析“基础单词补充”样式的条目
+          const fakeSetNum = 1;
+          const dummySummary = {
+            setNum: fakeSetNum,
+            expectedCore: null,
+            parsedCore: 0,
+            expectedSupplement: null,
+            parsedSupplement: parseSupplementBlock(text, fakeSetNum),
+          };
+          summaryRows.push(dummySummary);
+          return;
+        }
+
+        for (let i = 0; i < corePositions.length; i++) {
+          const startIdx = corePositions[i];
+          const endIdx =
+            i + 1 < corePositions.length ? corePositions[i + 1] : text.length;
+          const chunk = text.slice(startIdx, endIdx);
+
+          // 头一行：类似 “《GRE核心词汇考法精析》收录单词（共39词）”
+          const firstNewline = chunk.indexOf("\n");
+          const headerLine =
+            firstNewline !== -1 ? chunk.slice(0, firstNewline) : chunk;
+          let expectedCore = null;
+          const mCore = headerLine.match(/共(\d+)词/);
+          if (mCore) {
+            expectedCore = parseInt(mCore[1], 10) || null;
+          }
+
+          const suppIdxInChunk = chunk.indexOf(anchorSupp);
+          let coreBlock = "";
+          let supplementBlock = "";
+          let expectedSupplement = null;
+
+          if (suppIdxInChunk !== -1) {
+            // 核心词的正文：从标题行之后到 “基础单词补充” 之前
+            coreBlock = firstNewline !== -1
+              ? chunk.slice(firstNewline + 1, suppIdxInChunk)
+              : "";
+            // 基础补充的标题行 + 正文
+            const suppHeaderEnd =
+              chunk.indexOf("\n", suppIdxInChunk) !== -1
+                ? chunk.indexOf("\n", suppIdxInChunk)
+                : chunk.length;
+            const suppHeaderLine = chunk.slice(suppIdxInChunk, suppHeaderEnd);
+            const mSupp = suppHeaderLine.match(/共(\d+)词/);
+            if (mSupp) {
+              expectedSupplement = parseInt(mSupp[1], 10) || null;
+            }
+            supplementBlock =
+              suppHeaderEnd < chunk.length
+                ? chunk.slice(suppHeaderEnd + 1)
+                : "";
+          } else {
+            // 没有基础补充标题时，整块都当核心词正文
+            coreBlock =
+              firstNewline !== -1 ? chunk.slice(firstNewline + 1) : chunk;
+          }
+
+          const setNum = i + 1;
+          log(
+            "第 " +
+              setNum +
+              " 套：找到标题，开始解析核心词与基础补充 …"
+          );
+
+          const setSummary = {
+            setNum: setNum,
+            expectedCore: expectedCore,
+            parsedCore: parseCoreBlock(coreBlock, setNum),
+            expectedSupplement: expectedSupplement,
+            parsedSupplement: 0,
+          };
+
+          if (supplementBlock && supplementBlock.trim()) {
+            setSummary.parsedSupplement = parseSupplementBlock(
+              supplementBlock,
+              setNum
+            );
+          }
+
+          summaryRows.push(setSummary);
+        }
+      }
+      function parseCoreBlock(text, setNum) {
+        if (!text) return 0;
+        let cleaned = text.replace(/[\r\t]+/g, " ");
+        cleaned = cleaned.replace(/\s+/g, " ");
+        const tokens = cleaned.split(/\s+/);
+        const localSet = new Set();
+        const sourceLabel = "核心词汇 第" + setNum + "套";
+
+        for (let raw of tokens) {
+          if (!raw) continue;
+          let token = raw
+            .replace(/^[^A-Za-z\-]+/, "")
+            .replace(/[^A-Za-z\-]+$/, "");
+          if (!token) continue;
+          if (!/^[A-Za-z][A-Za-z\-]*$/.test(token)) continue;
+          if (isNoisyHeadword(token)) continue;
+
+          const lower = token.toLowerCase();
+          if (localSet.has(lower)) continue;
+          localSet.add(lower);
+
+          addOrMergeEntry(token, {
+            translation: "",
+            partOfSpeech: "",
+            enDef: "",
+            example: "",
+            source: sourceLabel,
+          });
+        }
+
+        log(
+          "第 " +
+            setNum +
+            " 套核心词区域：解析到 " +
+            localSet.size +
+            " 个看起来像单词的 token。"
+        );
+        return localSet.size;
+      }
+
+      function parseSupplementBlock(text, setNum) {
+        if (!text) return 0;
+        text = text.replace(/\r\n/g, "\n");
+        const rawLines = text
+          .split(/\n+/)
+          .map((l) => l.trim())
+          .filter((l) => l);
+
+        const blocks = [];
+        let current = "";
+
+        function isNewEntryLine(line) {
+          // 练习题题号 / 选项等，直接排除
+          if (/^[A-D]\./.test(line)) return false;
+          if (/^\d+\s*[-．\.]/.test(line)) return false;
+          if (line.indexOf("___") !== -1) return false;
+
+          const headMatch = line.match(/^([A-Za-z][A-Za-z\-]*)\b/);
+          if (!headMatch) return false;
+          const head = headMatch[1];
+          if (isNoisyHeadword(head)) return false;
+
+          const rest = line.slice(headMatch[0].length);
+          const earlyRest = rest.slice(0, 40);
+          if (
+            /\b(n\.|adj\.|adv\.|vt\.|vi\.|v\.|prep\.|conj\.|pron\.)\b/.test(
+              earlyRest
+            )
+          ) {
+            return true;
+          }
+          // 只有单词一行（下一行才是词性），也当作新条目
+          if (!rest.trim()) {
+            return true;
+          }
+          return false;
+        }
+
+        for (const line of rawLines) {
+          if (isNewEntryLine(line)) {
+            if (current) {
+              blocks.push(current.trim());
+            }
+            current = line;
+          } else {
+            if (current) {
+              current += " " + line;
+            } else {
+              current = line;
+            }
+          }
+        }
+        if (current) {
+          blocks.push(current.trim());
+        }
+
+        let parsedCount = 0;
+        const sourceLabel = "基础补充 第" + setNum + "套";
+
+        for (const block of blocks) {
+          const ok = parseSupplementEntryBlock(block, sourceLabel);
+          if (ok) {
+            parsedCount++;
+          }
+        }
+
+        log(
+          "第 " +
+            setNum +
+            " 套基础补充区域：识别出 " +
+            blocks.length +
+            " 个候选条目，成功解析 " +
+            parsedCount +
+            " 个。"
+        );
+        return parsedCount;
+      }
+
+      function parseSupplementEntryBlock(block, sourceLabel) {
+        const headMatch = block.match(/^([A-Za-z][A-Za-z\-]*)\b/);
+        if (!headMatch) return false;
+        const word = headMatch[1];
+        if (isNoisyHeadword(word)) return false;
+        let rest = block.slice(headMatch[0].length);
+
+        const posMatch = rest.match(
+          /\b(n\.|adj\.|adv\.|vt\.|vi\.|v\.|prep\.|conj\.|pron\.)\b/
+        );
+        let pos = "";
+        let afterPos = rest;
+        if (posMatch) {
+          pos = posMatch[1];
+          afterPos = rest.slice(posMatch.index + pos.length);
+        } else {
+          afterPos = rest;
+        }
+
+        let colonIndex = afterPos.indexOf("：");
+        if (colonIndex === -1) {
+          colonIndex = afterPos.indexOf(":");
+        }
+        let translation = "";
+        let enDef = "";
+        if (colonIndex !== -1) {
+          translation = afterPos.slice(0, colonIndex).trim();
+          enDef = afterPos.slice(colonIndex + 1).trim();
+        } else {
+          translation = afterPos.trim();
+        }
+
+        addOrMergeEntry(word, {
+          translation: translation,
+          partOfSpeech: pos,
+          enDef: enDef,
+          example: "",
+          source: sourceLabel,
+        });
+        return true;
+      }
+
+      function addOrMergeEntry(word, info) {
+        const key = word.toLowerCase();
+        let entry = entriesMap.get(key);
+        if (!entry) {
+          entry = {
+            word: word,
+            translation: "",
+            partOfSpeech: "",
+            enDef: "",
+            example: "",
+            source: "",
+            knownStatus: "unknown",
+          };
+        }
+        if (info.translation && !entry.translation) {
+          entry.translation = info.translation;
+        }
+        if (info.partOfSpeech && !entry.partOfSpeech) {
+          entry.partOfSpeech = info.partOfSpeech;
+        }
+        if (info.enDef && !entry.enDef) {
+          entry.enDef = info.enDef;
+        }
+        if (info.example && !entry.example) {
+          entry.example = info.example;
+        }
+        if (info.source) {
+          if (entry.source) {
+            if (!entry.source.includes(info.source)) {
+              entry.source += "; " + info.source;
+            }
+          } else {
+            entry.source = info.source;
+          }
+        }
+        entriesMap.set(key, entry);
+      }
+
+      function updateSummaryTable() {
+        summaryTableBody.innerHTML = "";
+        if (!summaryRows.length) return;
+
+        function formatCount(parsed, expected) {
+          if (expected == null || isNaN(expected)) {
+            return parsed || 0;
+          }
+          return (parsed || 0) + " / " + expected;
+        }
+
+        for (const row of summaryRows) {
+          const tr = document.createElement("tr");
+
+          const tdSet = document.createElement("td");
+          tdSet.textContent = row.setNum;
+
+          const tdCore = document.createElement("td");
+          tdCore.textContent = formatCount(row.parsedCore, row.expectedCore);
+
+          const tdSup = document.createElement("td");
+          tdSup.textContent = formatCount(
+            row.parsedSupplement,
+            row.expectedSupplement
+          );
+
+          const tdNote = document.createElement("td");
+          tdNote.className = "notes";
+          const notes = [];
+          if (
+            row.expectedCore &&
+            row.parsedCore &&
+            Math.abs(row.parsedCore - row.expectedCore) > 3
+          ) {
+            notes.push("核心词数量与原书差异较大");
+          }
+          if (
+            row.expectedSupplement &&
+            row.parsedSupplement &&
+            Math.abs(row.parsedSupplement - row.expectedSupplement) > 3
+          ) {
+            notes.push("基础补充数量与原书差异较大");
+          }
+          tdNote.textContent = notes.join("；");
+
+          tr.appendChild(tdSet);
+          tr.appendChild(tdCore);
+          tr.appendChild(tdSup);
+          tr.appendChild(tdNote);
+          summaryTableBody.appendChild(tr);
+        }
+      }
+
+      function csvEscape(value) {
+        if (value == null) return "";
+        const str = String(value);
+        if (/[",\n\r]/.test(str)) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      }
+
+      function buildCsv(entries) {
+        // 使用与 V14 内部字段一致的表头，减少映射歧义
+        const headers = [
+          "headword",
+          "user_definition",
+          "partOfSpeech",
+          "enDef",
+          "context_sentence",
+          "source",
+          "knownStatus",
+        ];
+        const lines = [];
+        lines.push(headers.join(","));
+        for (const e of entries) {
+          const row = [
+            csvEscape(e.word || ""),
+            csvEscape(e.translation || ""),
+            csvEscape(e.partOfSpeech || ""),
+            csvEscape(e.enDef || ""),
+            csvEscape(e.example || ""),
+            csvEscape(e.source || ""),
+            csvEscape(e.knownStatus || "unknown"),
+          ];
+          lines.push(row.join(","));
+        }
+        // 加上 UTF-8 BOM，避免 Excel 乱码
+        return "\uFEFF" + lines.join("\n");
+      }
+    })();
+  </script>
+</body>
+</html>

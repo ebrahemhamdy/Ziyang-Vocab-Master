@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>背单词 V49</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f3f4f6;color:#111827}
+    .app{max-width:1100px;margin:0 auto;padding:16px 10px 32px}
+    h1{font-size:24px;margin-bottom:4px}
+    .subtitle{font-size:12px;color:#6b7280;margin-bottom:10px}
+    .panel{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 10px 25px rgba(15,23,42,.08)}
+    .stats{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;margin-bottom:6px}
+    .stats span{font-weight:600;color:#4f46e5}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;margin-bottom:4px}
+    .controls input[type=number]{width:80px;border-radius:999px;border:1px solid #d1d5db;padding:4px 8px}
+    button{cursor:pointer;border:none;border-radius:999px;background:#4f46e5;color:#fff;padding:6px 14px;font-size:13px;font-weight:500}
+    button:hover{background:#4338ca}
+    button:disabled{background:#9ca3af;cursor:not-allowed}
+    .btn-mini{padding:4px 10px;font-size:11px}
+    .btn-green{background:#0f766e}
+    .btn-blue{background:#0369a1}
+    .btn-red{background:#ef4444}
+    .session-info{font-size:11px;color:#6b7280;min-height:16px;margin-bottom:6px}
+    .card-holder{min-height:260px}
+    .word-card{background:linear-gradient(135deg,#eef2ff,#e0f2fe);border-radius:18px;padding:14px 14px 12px;box-shadow:0 18px 40px rgba(15,23,42,.16)}
+    .card-header{display:flex;justify-content:space-between;font-size:11px;color:#4b5563;margin-bottom:4px}
+    .badge-row{display:flex;gap:6px;align-items:center}
+    .badge{padding:2px 8px;border-radius:999px;font-weight:600}
+    .badge-wrong{background:#fee2e2;color:#b91c1c}
+    .badge-time{background:#dbeafe;color:#1d4ed8}
+    .card-main{display:flex;gap:12px;margin:8px 0;align-items:flex-start}
+    .col-word{flex:.85;border-right:1px dashed rgba(148,163,184,.8);padding-right:8px}
+    .col-extra{flex:1.15;padding-left:4px}
+    .spelling{font-size:30px;font-weight:700;margin-bottom:4px}
+    .phonetic{font-size:15px;color:#374151;margin-bottom:4px}
+    .meaning-cn{font-size:26px;font-weight:700;color:#111827;line-height:1.2}
+    .meaning-en{font-size:13px;color:#374151;margin-top:4px}
+    .card-actions{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+    .card-actions button{flex:1;font-size:12px;padding:5px 8px}
+    .btn-purple{background:#7e22ce}
+    .panel-interact{background:rgba(255,255,255,.65);border-radius:12px;padding:10px;font-size:14px;line-height:1.6;min-height:52px;box-shadow:inset 0 2px 6px rgba(15,23,42,.06)}
+    .clickable-word{text-decoration:underline;cursor:pointer;margin-right:6px}
+    .clickable-word:hover{color:#1d4ed8;background:rgba(37,99,235,.12);border-radius:4px;padding:0 3px}
+    .yesno{display:flex;gap:8px;margin-top:8px}
+    .btn-yes{background:#22c55e}
+    .btn-no{background:#f97373}
+    .db-status{font-size:11px;color:#059669;margin-bottom:6px}
+    ul{list-style:none}
+    #bookList li{padding:4px 8px;border-bottom:1px dashed #e5e7eb}
+    #bookList .title{font-size:13px;font-weight:500}
+    #bookList .meta{font-size:11px;color:#6b7280}
+    @media(max-width:780px){
+      .card-main{flex-direction:column}
+      .col-word{border-right:none;border-bottom:1px dashed rgba(148,163,184,.8);padding-bottom:8px}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>背单词 V49</h1>
+  <div class="subtitle">↑ 上一词　↓ 下一词　← 认识　→ 不认识　1 想　2 场　3 拼　4 读　空格 听3遍 + 显示释义10秒</div>
+
+  <section class="panel">
+    <div class="stats">
+      <div>总单词：<span id="statTotal">0</span></div>
+      <div>不认识：<span id="statUnknown">0</span></div>
+      <div>新词：<span id="statNew">0</span></div>
+      <div>认识：<span id="statKnown">0</span></div>
+      <div>书本：<span id="statBooks">0</span></div>
+    </div>
+    <div class="controls">
+      <label>每轮单词：
+        <input type="number" id="sessionSize" min="1" max="200" value="20">
+      </label>
+      <button id="btnStart" disabled>开始背单词</button>
+      <span style="font-size:11px;color:#6b7280">提示：左/右只标记认识状态，不自动跳词；上/下控制切换单词。</span>
+    </div>
+    <div id="sessionInfo" class="session-info"></div>
+    <div id="cardHolder" class="card-holder"></div>
+  </section>
+
+  <section class="panel">
+    <div class="db-status" id="dbStatus">数据库初始化中...</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px">
+      <div>
+        <button class="btn-blue btn-mini" id="btnImportAll">导入备份 CSV</button>
+        <button class="btn-blue btn-mini" id="btnImportKnown">导入认识 CSV</button>
+        <button class="btn-blue btn-mini" id="btnImportUnknown">导入错题 CSV</button>
+        <input type="file" id="csvAllInput" accept=".csv" style="display:none">
+        <input type="file" id="csvKnownInput" accept=".csv" style="display:none">
+        <input type="file" id="csvUnknownInput" accept=".csv" style="display:none">
+      </div>
+      <div>
+        <button class="btn-green btn-mini" id="btnExportAll">导出全部</button>
+        <button class="btn-green btn-mini" id="btnExportKnown">导出认识</button>
+        <button class="btn-green btn-mini" id="btnExportUnknown">导出错题</button>
+      </div>
+    </div>
+    <ul id="bookList"></ul>
+    <div style="text-align:right;margin-top:8px">
+      <button class="btn-red btn-mini" id="btnClearDB">清空数据库</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  const DB_NAME = 'WordMemDB_V45';
+  const STORE_WORDS = 'words';
+  const STORE_BOOKS = 'books';
+  let db = null;
+  let storageMode = 'indexedDB';
+
+  function lsKey(store){return DB_NAME+'__'+store;}
+  function lsLoad(store){
+    try{
+      const raw = localStorage.getItem(lsKey(store));
+      if(!raw) return [];
+      const data = JSON.parse(raw);
+      return Array.isArray(data)?data:[];
+    }catch(e){console.error('lsLoad error',e);return[];}
+  }
+  function lsSave(store,arr){
+    try{localStorage.setItem(lsKey(store),JSON.stringify(arr));}
+    catch(e){console.error('lsSave error',e);alert('localStorage 写入失败，可能超过容量限制');}
+  }
+
+  function openIDB(){
+    return new Promise((resolve,reject)=>{
+      if(!('indexedDB' in window)) return reject(new Error('no indexedDB'));
+      const req = indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded = e=>{
+        db = e.target.result;
+        if(!db.objectStoreNames.contains(STORE_WORDS)){
+          db.createObjectStore(STORE_WORDS,{keyPath:'word'});
+        }
+        if(!db.objectStoreNames.contains(STORE_BOOKS)){
+          db.createObjectStore(STORE_BOOKS,{keyPath:'id'});
+        }
+      };
+      req.onsuccess = e=>{db=e.target.result;resolve();};
+      req.onerror = e=>reject(e.target.error||new Error('open error'));
+    });
+  }
+
+  function getAll(store){
+    if(storageMode==='indexedDB'){
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(store);
+        const req = tx.objectStore(store).getAll();
+        req.onsuccess = ()=>resolve(req.result);
+        req.onerror = e=>reject(e.target.error);
+      });
+    }else{
+      return Promise.resolve(lsLoad(store));
+    }
+  }
+
+  function put(store,data){
+    if(storageMode==='indexedDB'){
+      return new Promise((resolve,reject)=>{
+        const tx=db.transaction(store,'readwrite');
+        tx.objectStore(store).put(data);
+        tx.oncomplete=()=>resolve();
+        tx.onerror=e=>reject(e.target.error);
+      });
+    }else{
+      const arr=lsLoad(store);
+      if(store===STORE_WORDS){
+        const i=arr.findIndex(w=>w.word===data.word);
+        if(i>=0)arr[i]=data;else arr.push(data);
+      }else{
+        const i=arr.findIndex(b=>b.id===data.id);
+        if(i>=0)arr[i]=data;else arr.push(data);
+      }
+      lsSave(store,arr);
+      return Promise.resolve();
+    }
+  }
+
+  function clearStores(){
+    if(storageMode==='indexedDB'){
+      return new Promise((resolve,reject)=>{
+        const tx=db.transaction([STORE_WORDS,STORE_BOOKS],'readwrite');
+        tx.objectStore(STORE_WORDS).clear();
+        tx.objectStore(STORE_BOOKS).clear();
+        tx.oncomplete=()=>resolve();
+        tx.onerror=e=>reject(e.target.error);
+      });
+    }else{
+      localStorage.removeItem(lsKey(STORE_WORDS));
+      localStorage.removeItem(lsKey(STORE_BOOKS));
+      return Promise.resolve();
+    }
+  }
+
+  function escapeHtml(str){
+    if(str==null)return'';
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function formatTimeAgo(s){
+    if(!s)return'首次学习';
+    const t=new Date(s);
+    if(!t.getTime())return'首次学习';
+    const diff=Date.now()-t.getTime();
+    const sec=Math.floor(diff/1000);
+    if(sec<60)return'刚刚';
+    const min=Math.floor(sec/60);
+    if(min<60)return min+' 分钟前';
+    const h=Math.floor(min/60);
+    if(h<24)return h+' 小时前';
+    const d=Math.floor(h/24);
+    return d+' 天前';
+  }
+
+  function speakWord(word,times){
+    if(!('speechSynthesis' in window))return;
+    window.speechSynthesis.cancel();
+    times=times||1;
+    for(let i=0;i<times;i++){
+      const u=new SpeechSynthesisUtterance(word);
+      u.lang='en-US';
+      u.rate=0.9;
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  function normalizeWordForCompare(str){
+    return String(str||'')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/[^a-z]/g,'');
+  }
+
+  let words=[];
+  let books=[];
+  let session=[];
+  let idx=0;
+  let active=false;
+  let isProcessing=false;
+  let currentRecognizer=null;
+  let jumpState=null;
+  let previewWord=null;
+  let hideTimer=null;
+
+  const el={
+    total:document.getElementById('statTotal'),
+    unknown:document.getElementById('statUnknown'),
+    known:document.getElementById('statKnown'),
+    news:document.getElementById('statNew'),
+    books:document.getElementById('statBooks'),
+    bookList:document.getElementById('bookList'),
+    cardHolder:document.getElementById('cardHolder'),
+    sessionInfo:document.getElementById('sessionInfo'),
+    startBtn:document.getElementById('btnStart'),
+    dbStatus:document.getElementById('dbStatus'),
+    sizeInput:document.getElementById('sessionSize')
+  };
+
+  function refreshStats(){
+    const total=words.length;
+    const known=words.filter(w=>w.knownStatus==='known').length;
+    const unknown=words.filter(w=>w.knownStatus!=='known'&&(w.unknownExposures||[]).length>0).length;
+    el.total.textContent=total;
+    el.known.textContent=known;
+    el.unknown.textContent=unknown;
+    el.news.textContent=total-known-unknown;
+    el.books.textContent=books.length;
+
+    el.bookList.innerHTML='';
+    if(!books.length){
+      const li=document.createElement('li');
+      li.innerHTML='<span class="meta">暂无单词书，先导入 CSV 吧。</span>';
+      el.bookList.appendChild(li);
+      return;
+    }
+    const sorted=books.slice().sort((a,b)=>(b.uploadedAt||'').localeCompare(a.uploadedAt||''));
+    sorted.forEach(b=>{
+      const li=document.createElement('li');
+      const cnt=b.wordCount!=null?b.wordCount:words.filter(w=>w.sourceBookId===b.id).length;
+      li.innerHTML=
+        '<div class="title">📚 '+escapeHtml(b.name||'未命名')+'</div>'+
+        '<div class="meta">单词数：'+cnt+' · 创建：'+(b.uploadedAt?new Date(b.uploadedAt).toLocaleString():'-')+'</div>';
+      el.bookList.appendChild(li);
+    });
+  }
+
+  function randomSample(arr,n){
+    if(!Array.isArray(arr)||n<=0)return[];
+    if(n>=arr.length)return arr.slice();
+    const copy=arr.slice();
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      const tmp=copy[i];copy[i]=copy[j];copy[j]=tmp;
+    }
+    return copy.slice(0,n);
+  }
+
+  function startSession(){
+    if(!words.length){alert('词库为空，请先导入 CSV');return;}
+    let size=parseInt(el.sizeInput.value,10)||20;
+    if(size<1)size=1;if(size>200)size=200;
+
+    const known=words.filter(w=>w.knownStatus==='known');
+    const review=words.filter(w=>w.knownStatus!=='known'&&(w.unknownExposures||[]).length>0);
+    const fresh=words.filter(w=>w.knownStatus!=='known'&&(!(w.unknownExposures)||!(w.unknownExposures||[]).length));
+
+    let k=Math.ceil(size*0.2);
+    let r=Math.ceil(size*0.4);
+    let n=size-k-r;
+
+    if(known.length<k){r+=k-known.length;k=known.length;}
+    if(review.length<r){n+=r-review.length;r=review.length;}
+    if(fresh.length<n){r+=n-fresh.length;n=fresh.length;}
+
+    const now=Date.now();
+    review.sort((a,b)=>{
+      const la=Date.parse(a.lastShownAt||'')||0;
+      const lb=Date.parse(b.lastShownAt||'')||0;
+      const da=Math.max(1,(now-la)/86400000);
+      const db=Math.max(1,(now-lb)/86400000);
+      const sa=(a.unknownExposures||[]).length*da;
+      const sb=(b.unknownExposures||[]).length*db;
+      return sb-sa;
+    });
+
+    const chosenReview=review.slice(0,r);
+    const chosenFresh=randomSample(fresh,n);
+    const chosenKnown=randomSample(known,k);
+
+    session=[...chosenReview,...chosenFresh,...chosenKnown]
+      .sort(()=>Math.random()-0.5);
+
+    idx=0;
+    active=session.length>0;
+    jumpState=null;
+    previewWord=null;
+    el.sessionInfo.textContent='本轮 '+session.length+' 个单词';
+    renderCard();
+  }
+
+  function clearHideTimer(){
+    if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}
+  }
+
+  async function updateWord(oldObj,patch){
+    const updated=Object.assign({},oldObj,patch);
+    await put(STORE_WORDS,updated);
+    const i=words.findIndex(w=>w.word===oldObj.word);
+    if(i>=0)words[i]=updated;
+    const j=session.findIndex(w=>w.word===oldObj.word);
+    if(j>=0)session[j]=updated;
+    return updated;
+  }
+
+  function renderCard(){
+    clearHideTimer();
+    if(!active||!session.length||idx>=session.length){
+      active=false;jumpState=null;previewWord=null;
+      el.sessionInfo.textContent='本轮已结束，点击“开始背单词”再来一轮。';
+      el.cardHolder.innerHTML='<div style="font-size:13px;color:#6b7280;padding:10px">本轮结束 🎉</div>';
+      return;
+    }
+    const base=session[idx];
+    const w=previewWord||base;
+    const exposures=(w.unknownExposures||[]).length;
+    const timeStr=formatTimeAgo(w.lastShownAt);
+
+    const phonetic=w.phonetic?'<div class="phonetic">/'+escapeHtml(w.phonetic)+'/</div>':'';
+    const cn=w.meaning?escapeHtml(w.meaning):'<span style="font-size:13px;color:#9ca3af">暂无中文释义</span>';
+    const enDef=w.enDef?'<div class="meaning-en">'+escapeHtml(w.enDef)+'</div>':'';
+
+    const img=w.image_base64
+      ?'<div style="margin-top:6px"><img style="max-width:140px;border-radius:12px;box-shadow:0 4px 10px rgba(15,23,42,.18)" src="'+w.image_base64+'" /></div>'
+      :'';
+
+    el.cardHolder.innerHTML =
+      '<div class="word-card">'+
+        '<div class="card-header">'+
+          '<div>第 '+(idx+1)+' / '+session.length+'</div>'+
+          '<div class="badge-row">'+
+            '<span class="badge badge-wrong">错 '+exposures+' 次</span>'+
+            '<span class="badge badge-time">'+timeStr+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="card-main">'+
+          '<div class="col-word">'+
+            '<div class="spelling">'+escapeHtml(w.word)+'</div>'+
+            phonetic+
+            '<div id="meaningBlock" style="display:none">'+
+              '<div class="meaning-cn">'+cn+'</div>'+
+              enDef+
+            '</div>'+
+            img+
+          '</div>'+
+          '<div class="col-extra">'+
+            '<div class="card-actions">'+
+              '<button id="btnAssoc">想：联想&词根 (1)</button>'+
+              '<button id="btnScene">场：例句&场景 (2)</button>'+
+              '<button id="btnSpell">拼：拼写测试 (3)</button>'+
+              '<button id="btnRecite" class="btn-purple">读：麦克风跟读 (4)</button>'+
+            '</div>'+
+            '<div id="interactionPanel" class="panel-interact">'+
+              '<span style="font-size:13px;color:#9ca3af">先看英文，自己想中文；按空格显示释义 10 秒。</span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="yesno">'+
+          '<button id="btnKnown" class="btn-yes">✅ 认识 (←)</button>'+
+          '<button id="btnUnknown" class="btn-no">❌ 不认识 (→)</button>'+
+        '</div>'+
+      '</div>';
+
+    el.sessionInfo.textContent='本轮 '+session.length+' 个单词 · 当前第 '+(idx+1)+' 个';
+
+    const panel=document.getElementById('interactionPanel');
+    document.getElementById('btnAssoc').onclick=e=>{e.currentTarget.blur();showAssociation(w,panel);};
+    document.getElementById('btnScene').onclick=e=>{e.currentTarget.blur();showScene(w,panel);};
+    document.getElementById('btnSpell').onclick=e=>{e.currentTarget.blur();showSpellPanel(w,panel);};
+    document.getElementById('btnRecite').onclick=e=>{e.currentTarget.blur();startPronounceTest(w,panel);};
+    document.getElementById('btnKnown').onclick=e=>{e.currentTarget.blur();handleKnown();};
+    document.getElementById('btnUnknown').onclick=e=>{e.currentTarget.blur();handleUnknown();};
+
+    speakWord(w.word,1);
+    updateWord(w,{lastShownAt:new Date().toISOString()}).then(()=>{});
+  }
+
+  function openMacDictionary(word){
+    if(!word) return;
+    try{
+      const url = 'dict://' + encodeURIComponent((word||'').trim());
+      window.location.href = url;
+    }catch(e){
+      console.error('openMacDictionary error', e);
+    }
+  }
+
+  function attachLinks(panel,w,wordsArr){
+    const links = panel.querySelectorAll('.clickable-word');
+    links.forEach(link=>{
+      // 左键：保持原有行为 —— 跳转到该词的单词卡
+      link.onclick = ()=>{
+        const txt = link.getAttribute('data-word') || link.textContent;
+        jumpToLinkedWord(txt, w);
+      };
+      // 右键：在 macOS 系统词典中查询该词
+      link.oncontextmenu = (ev)=>{
+        ev.preventDefault();
+        const txt = link.getAttribute('data-word') || link.textContent;
+        openMacDictionary(txt);
+      };
+    });
+  }
+
+  function showAssociation(w,panel){
+    clearHideTimer();
+    const syn=(w.synonyms||[]).length
+      ?(w.synonyms||[]).map(s=>'<span class="clickable-word" data-word="'+escapeHtml(s)+'">'+escapeHtml(s)+'</span>').join(' ')
+      :'<span style="color:#9ca3af">暂无同义词</span>';
+    const ant=(w.antonyms||[]).length
+      ?(w.antonyms||[]).map(s=>'<span class="clickable-word" data-word="'+escapeHtml(s)+'">'+escapeHtml(s)+'</span>').join(' ')
+      :'<span style="color:#9ca3af">暂无反义词</span>';
+    const root=(w.root||w.root_meaning)
+      ?'<div><strong>词根：</strong>'+escapeHtml(w.root||'')+' '+escapeHtml(w.root_meaning||'')+'</div>'
+      :'';
+    panel.innerHTML =
+      '<div><strong>中文释义：</strong>'+escapeHtml(w.meaning||'暂无')+'</div>'+
+      root+
+      '<div style="margin-top:4px"><strong>同义词：</strong>'+syn+'</div>'+
+      '<div style="margin-top:4px"><strong>反义词：</strong>'+ant+'</div>';
+    attachLinks(panel,w,words);
+  }
+
+  function showScene(w,panel){
+    clearHideTimer();
+    const example=w.example||'暂无例句';
+    let scenes=Array.isArray(w.scenes)?w.scenes.slice():[];
+    scenes=scenes.filter(s=>s&&s.trim()&&s.toLowerCase()!==(w.word||'').toLowerCase());
+    if(!scenes.length&&(w.synonyms||[]).length){
+      scenes=w.synonyms.slice(0,3);
+    }
+    const sceneHtml=scenes.length
+      ?scenes.map(s=>'<span class="clickable-word" data-word="'+escapeHtml(s)+'">'+escapeHtml(s)+'</span>').join(' ')
+      :'<span style="color:#9ca3af">暂无场景词</span>';
+    panel.innerHTML =
+      '<div><strong>例句：</strong></div>'+
+      '<div style="margin:4px 0 8px">'+escapeHtml(example)+'</div>'+
+      '<div><strong>场景搭配：</strong>'+sceneHtml+'</div>';
+    attachLinks(panel,w,words);
+  }
+
+  function showSpellPanel(w,panel){
+    clearHideTimer();
+    panel.innerHTML =
+      '<div style="margin-bottom:4px"><strong>拼写测试：</strong>输入你记得的拼写，然后按 Enter 或“检查”。</div>'+
+      '<input id="spellInput" type="text" style="width:100%;padding:6px 8px;border-radius:8px;border:1px solid #cbd5e1;margin-bottom:6px" autocomplete="off" />'+
+      '<button id="btnCheckSpell" class="btn-mini">检查</button>'+
+      '<div id="spellFeedback" style="font-size:13px;color:#6b7280;margin-top:6px"></div>';
+    const input=document.getElementById('spellInput');
+    const btn=document.getElementById('btnCheckSpell');
+    const fb=document.getElementById('spellFeedback');
+    function check(){
+      const val=input.value.trim();
+      if(!val)return;
+      const ok=normalizeWordForCompare(val)===normalizeWordForCompare(w.word);
+      fb.innerHTML=ok
+        ?'<span style="color:#16a34a">✅ 拼写正确！'+escapeHtml(w.word)+'</span>'
+        :'<span style="color:#b91c1c">❌ 拼写错误，正确拼写：'+escapeHtml(w.word)+'</span>';
+    }
+    btn.onclick=()=>{btn.blur();check();};
+    input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();check();}};
+    input.focus();
+  }
+
+  function startPronounceTest(w,panel){
+    clearHideTimer();
+    if(currentRecognizer){try{currentRecognizer.stop();}catch(e){}currentRecognizer=null;}
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){
+      panel.innerHTML='<span style="color:#b91c1c">当前浏览器不支持语音识别，请使用桌面版 Chrome。</span>';
+      return;
+    }
+    panel.innerHTML =
+      '<div><strong>跟读测试：</strong>请对着麦克风读出这个单词：</div>'+
+      '<div style="font-size:20px;font-weight:700;margin:4px 0 6px">'+escapeHtml(w.word)+'</div>'+
+      '<div id="reciteStatus" style="font-size:13px;color:#6b7280">正在启动麦克风，请开始朗读...</div>';
+    const statusEl=document.getElementById('reciteStatus');
+    const rec=new SR();
+    currentRecognizer=rec;
+    rec.lang='en-US';
+    rec.interimResults=false;
+    rec.maxAlternatives=1;
+    rec.onresult=evt=>{
+      const text=evt.results[0][0].transcript||'';
+      const ok=normalizeWordForCompare(text)===normalizeWordForCompare(w.word);
+      statusEl.innerHTML=ok
+        ?'<span style="color:#16a34a">✅ 识别为：'+escapeHtml(text)+'，很好！</span>'
+        :'<span style="color:#b91c1c">❌ 识别为：'+escapeHtml(text)+'，目标单词：'+escapeHtml(w.word)+'</span>';
+      currentRecognizer=null;
+    };
+    rec.onerror=evt=>{
+      statusEl.innerHTML='<span style="color:#b91c1c">语音识别出错：'+escapeHtml(evt.error||'未知错误')+'</span>';
+      currentRecognizer=null;
+    };
+    rec.onend=()=>{if(currentRecognizer===rec)currentRecognizer=null;};
+    try{rec.start();}catch(e){
+      statusEl.innerHTML='<span style="color:#b91c1c">无法启动语音识别：'+escapeHtml(e.message||String(e))+'</span>';
+      currentRecognizer=null;
+    }
+  }
+
+  function revealTemporarily(){
+    if(!active||!session.length||idx>=session.length)return;
+    const w=previewWord||session[idx];
+    const panel=document.getElementById('interactionPanel');
+    if(!panel)return;
+    showAssociation(w,panel);
+    const block=document.getElementById('meaningBlock');
+    if(block)block.style.display='block';
+    clearHideTimer();
+    hideTimer=setTimeout(()=>{
+      const p=document.getElementById('interactionPanel');
+      if(p)p.innerHTML='<span style="font-size:13px;color:#9ca3af">释义已隐藏，再按空格可重新查看 10 秒。</span>';
+      const b=document.getElementById('meaningBlock');
+      if(b)b.style.display='none';
+      hideTimer=null;
+    },10000);
+  }
+
+  async function handleKnown(){
+    if(!active||!session.length||idx>=session.length)return;
+    if(isProcessing)return;
+    isProcessing=true;
+    try{
+      const base=session[idx];
+      const w=previewWord||base;
+      const upd=await updateWord(w,{knownStatus:'known',lastShownAt:new Date().toISOString()});
+      session[idx]=upd;
+      refreshStats();
+    }finally{isProcessing=false;}
+  }
+
+  async function handleUnknown(){
+    if(!active||!session.length||idx>=session.length)return;
+    if(isProcessing)return;
+    isProcessing=true;
+    try{
+      const base=session[idx];
+      const w=previewWord||base;
+      const exposures=(w.unknownExposures||[]).slice();
+      exposures.push(new Date().toISOString());
+      const upd=await updateWord(w,{
+        knownStatus:'unknown',
+        unknownExposures:exposures,
+        lastShownAt:new Date().toISOString()
+      });
+      session[idx]=upd;
+      refreshStats();
+    }finally{isProcessing=false;}
+  }
+
+  async function jumpToLinkedWord(text,parent){
+    const raw=(text||'').trim();
+    if(!raw)return;
+    const normTarget=normalizeWordForCompare(raw);
+    if(!normTarget){speakWord(raw,1);return;}
+    let target=words.find(w=>normalizeWordForCompare(w.word)===normTarget);
+    if(!target){
+      const base=parent||session[idx]||null;
+      const newWord={
+        word:raw.toLowerCase(),
+        text:raw,
+        knownStatus:'unknown',
+        unknownExposures:[],
+        sourceBookId:base?base.sourceBookId:null,
+        phonetic:'',
+        meaning:'',
+        enDef:'',
+        example:'',
+        root:'',
+        root_meaning:'',
+        synonyms:[],
+        antonyms:[],
+        scenes:[],
+        partOfSpeech:'',
+        image_base64:'',
+        lastShownAt:null
+      };
+      try{
+        await put(STORE_WORDS,newWord);
+        words.push(newWord);
+        refreshStats();
+        target=newWord;
+      }catch(e){
+        console.error('save linked word fail',e);
+        speakWord(raw,1);
+        return;
+      }
+    }
+    if(!jumpState){
+      const fromIndex=idx;
+      const fromNextIndex=(idx<session.length-1)?idx+1:idx;
+      jumpState={fromIndex,fromNextIndex};
+    }
+    previewWord=target;
+    renderCard();
+  }
+
+  document.addEventListener('keydown',e=>{
+    if(!active||!session.length)return;
+    const tag=e.target.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA')return;
+    switch(e.code){
+      case'ArrowUp':
+        e.preventDefault();
+        if(isProcessing)return;
+        if(jumpState){
+          previewWord=null;
+          idx=jumpState.fromIndex;
+          jumpState=null;
+          renderCard();
+        }else if(idx>0){
+          idx--;renderCard();
+        }
+        break;
+      case'ArrowDown':
+        e.preventDefault();
+        if(isProcessing)return;
+        if(jumpState){
+          previewWord=null;
+          idx=jumpState.fromNextIndex;
+          jumpState=null;
+          renderCard();
+        }else if(idx<session.length-1){
+          idx++;renderCard();
+        }
+        break;
+      case'ArrowLeft':
+        e.preventDefault();handleKnown();break;
+      case'ArrowRight':
+        e.preventDefault();handleUnknown();break;
+      case'Digit1':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)showAssociation(w,p);
+        break;
+      }
+      case'Digit2':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)showScene(w,p);
+        break;
+      }
+      case'Digit3':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)showSpellPanel(w,p);
+        break;
+      }
+      case'Digit4':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)startPronounceTest(w,p);
+        break;
+      }
+      case'Space':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        speakWord(w.word,3);
+        revealTemporarily();
+        break;
+      }
+    }
+  });
+
+  function escapeCsvValue(val){
+    if(val==null)val='';
+    let s=String(val);
+    if(/[",\n]/.test(s)){
+      s=s.replace(/"/g,'""');
+      return'"'+s+'"';
+    }
+    return s;
+  }
+
+  function exportCsv(type){
+    if(!words.length){alert('当前数据库无单词');return;}
+    let list;
+    if(type==='known')list=words.filter(w=>w.knownStatus==='known');
+    else if(type==='unknown')list=words.filter(w=>w.knownStatus!=='known'&&(w.unknownExposures||[]).length>0);
+    else list=words.slice();
+    if(!list.length){alert('符合条件的单词为空');return;}
+
+    const headers=[
+      'word','phonetic','meaning','enDef','example',
+      'root','root_meaning','synonyms','antonyms','scene_words',
+      'partOfSpeech','knownStatus','unknownCount','lastShownAt','sourceBookId','image_base64'
+    ];
+    const rows=list.map(w=>({
+      word:w.word||'',
+      phonetic:w.phonetic||'',
+      meaning:w.meaning||'',
+      enDef:w.enDef||'',
+      example:w.example||'',
+      root:w.root||'',
+      root_meaning:w.root_meaning||'',
+      synonyms:(w.synonyms||[]).join('|'),
+      antonyms:(w.antonyms||[]).join('|'),
+      scene_words:(w.scenes||[]).join('|'),
+      partOfSpeech:w.partOfSpeech||'',
+      knownStatus:w.knownStatus||'',
+      unknownCount:(w.unknownExposures||[]).length,
+      lastShownAt:w.lastShownAt||'',
+      sourceBookId:w.sourceBookId||'',
+      image_base64:w.image_base64||''
+    }));
+    function toRow(obj){
+      return headers.map(h=>escapeCsvValue(obj[h])).join(',');
+    }
+    let csv=headers.join(',')+'\n';
+    csv+=rows.map(toRow).join('\n');
+
+    const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    const ts=new Date().toISOString().slice(0,10);
+    a.download='wordbook_'+type+'_'+ts+'.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function setupImport(btnId,inputId,forcedStatus){
+    const btn=document.getElementById(btnId);
+    const input=document.getElementById(inputId);
+    btn.onclick=()=>{input.value='';input.click();};
+    input.onchange=e=>{
+      if(e.target.files&&e.target.files[0])importCsv(e.target.files[0],forcedStatus);
+    };
+  }
+
+  async function importCsv(file,forcedStatus){
+    const text=await file.text();
+    const lines=text.replace(/\r/g,'').trim().split('\n');
+    if(lines.length<=1){alert('CSV 内容为空');return;}
+    const headerLine=lines[0].toLowerCase().replace(/"/g,'');
+    const header=headerLine.split(',').map(h=>h.trim());
+    function col(name){
+      return header.findIndex(h=>h.indexOf(name)!==-1||name.indexOf(h)!==-1);
+    }
+    const wCol=col('word');
+    if(wCol===-1){alert('找不到 word 列');return;}
+
+    const bookId=Date.now();
+    const entries=[];
+    for(let i=1;i<lines.length;i++){
+      if(!lines[i].trim())continue;
+      let cur='';let inQ=false;const fixed=[];
+      const line=lines[i]+',';
+      for(let ch of line){
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){fixed.push(cur);cur='';}
+        else{cur+=ch;}
+      }
+      const row=fixed.map(s=>s.replace(/^"|"$/g,'').replace(/""/g,'"').trim());
+      const word=(row[wCol]||'').toLowerCase();
+      if(!word)continue;
+
+      function getCol(key){const idx=col(key);return idx===-1?'':row[idx]||'';}
+
+      // 读取可能存在的记忆状态字段（兼容旧版：没有这些列时会返回空字符串）
+      const csvKnownStatus = (getCol('knownstatus') || '').toLowerCase();
+      const csvUnknownCountStr = getCol('unknowncount');
+      const csvLastShown = getCol('lastshownat') || '';
+
+      // 1）确定最终的 knownStatus：优先 forcedStatus，其次 CSV 里的值，最后默认为 unknown
+      let finalStatus = 'unknown';
+      if (forcedStatus) {
+        finalStatus = forcedStatus;
+      } else if (csvKnownStatus === 'known' || csvKnownStatus === 'unknown') {
+        finalStatus = csvKnownStatus;
+      }
+
+      // 2）还原错误次数 unknownExposures：只保留「次数」，具体时间对当前算法并不重要
+      let unknownCount = parseInt(csvUnknownCountStr, 10);
+      if (!Number.isFinite(unknownCount) || unknownCount < 0) unknownCount = 0;
+      let reconstructedExposures = [];
+      if (finalStatus !== 'known' && unknownCount > 0) {
+        const ts = csvLastShown || '';
+        for (let k = 0; k < unknownCount; k++) {
+          reconstructedExposures.push(ts);
+        }
+      }
+
+      const entry={
+        word:word,
+        text:word,
+        knownStatus:finalStatus,
+        unknownExposures:reconstructedExposures,
+        sourceBookId:bookId,
+        phonetic:getCol('phonetic')||getCol('音标'),
+        meaning:getCol('meaning')||getCol('中文')||getCol('释义'),
+        enDef:getCol('endef')||getCol('english'),
+        example:getCol('example')||getCol('例句'),
+        root:getCol('root'),
+        root_meaning:getCol('root_meaning'),
+        synonyms:(getCol('synonyms')||'').split(/[\|,，]/).map(s=>s.trim()).filter(Boolean),
+        antonyms:(getCol('antonyms')||'').split(/[\|,，]/).map(s=>s.trim()).filter(Boolean),
+        scenes:(getCol('scene_words')||getCol('scenes')||'').split(/[\|,，]/).map(s=>s.trim()).filter(Boolean),
+        partOfSpeech:getCol('pos')||getCol('partofspeech')||getCol('wordtype'),
+        image_base64:getCol('image_base64'),
+        lastShownAt:csvLastShown || null
+      };
+      entries.push(entry);
+    }
+
+    const book={
+      id:bookId,
+      name:file.name.replace(/\.csv.*$/,''),
+      uploadedAt:new Date().toISOString(),
+      wordCount:entries.length
+    };
+
+    if(storageMode==='indexedDB'){
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction([STORE_WORDS,STORE_BOOKS],'readwrite');
+        const ws=tx.objectStore(STORE_WORDS);
+        const bs=tx.objectStore(STORE_BOOKS);
+        entries.forEach(e=>ws.put(e));
+        if(entries.length)bs.put(book);
+        tx.oncomplete=()=>resolve();
+        tx.onerror=e=>reject(e.target.error);
+      });
+    }else{
+      const ws=lsLoad(STORE_WORDS);
+      entries.forEach(e=>{
+        const i=ws.findIndex(w=>w.word===e.word);
+        if(i>=0)ws[i]=e;else ws.push(e);
+      });
+      lsSave(STORE_WORDS,ws);
+      if(entries.length){
+        const bs=lsLoad(STORE_BOOKS);
+        bs.push(book);
+        lsSave(STORE_BOOKS,bs);
+      }
+    }
+
+    words=await getAll(STORE_WORDS);
+    books=await getAll(STORE_BOOKS);
+    refreshStats();
+    alert('导入成功，共 '+entries.length+' 个单词');
+  }
+
+  document.getElementById('btnStart').onclick=startSession;
+  document.getElementById('btnExportAll').onclick=()=>exportCsv('all');
+  document.getElementById('btnExportKnown').onclick=()=>exportCsv('known');
+  document.getElementById('btnExportUnknown').onclick=()=>exportCsv('unknown');
+  document.getElementById('btnClearDB').onclick=async()=>{
+    if(!confirm('确定要清空所有数据？此操作不可恢复。'))return;
+    await clearStores();
+    words=[];books=[];session=[];idx=0;active=false;jumpState=null;previewWord=null;
+    el.cardHolder.innerHTML='';el.sessionInfo.textContent='';
+    refreshStats();
+    alert('数据库已清空');
+  };
+
+  setupImport('btnImportAll','csvAllInput',null);
+  setupImport('btnImportKnown','csvKnownInput','known');
+  setupImport('btnImportUnknown','csvUnknownInput','unknown');
+
+  window.addEventListener('load',async()=>{
+    try{
+      await openIDB();
+      storageMode='indexedDB';
+      el.dbStatus.textContent='数据库就绪：IndexedDB 模式（推荐）';
+    }catch(e){
+      console.warn('IndexedDB 失败，使用 localStorage',e);
+      storageMode='localStorage';
+      el.dbStatus.textContent='⚠️ IndexedDB 不可用，已回退到 localStorage（容量有限）';
+    }
+    words=await getAll(STORE_WORDS);
+    books=await getAll(STORE_BOOKS);
+    refreshStats();
+    el.startBtn.disabled=false;
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>单词工厂 V15 (全功能最终修复版)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js"></script>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--text);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-group { margin-bottom: 15px; }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            color: #64748b;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        button:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+        
+        /* 暂停按钮样式 */
+        #pauseBtn { background: #f59e0b; display: none; } 
+        #resumeBtn { background: #10b981; display: none; }
+
+        button.secondary {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        button.danger { background: #ef4444; }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            background: #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .stat-item span {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        #log {
+            background: #1e1e1e;
+            color: #4ade80;
+            padding: 15px;
+            border-radius: 8px;
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            margin-top: 20px;
+            border: 1px solid #333;
+        }
+
+        .log-err { color: #f87171; }
+        .log-warn { color: #fbbf24; }
+        .log-success { color: #4ade80; }
+
+        .progress-container { margin-top: 20px; }
+
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.85em;
+            text-align: right;
+            margin-top: 4px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>
+        🏭 单词工厂 V15 (全功能最终版)
+        <button class="secondary" onclick="exportData()" style="width: auto; padding: 5px 15px; font-size: 13px;">📥 强力导出 CSV</button>
+    </h2>
+    
+    <div class="stats-bar">
+        <div class="stat-item">总词条: <span id="statTotal">0</span></div>
+        <div class="stat-item">AI已分析: <span id="statDone">0</span></div>
+        <div class="stat-item">队列待处理: <span id="statPending">0</span></div>
+        <div class="stat-item">状态: <span id="statusIndicator">空闲</span></div>
+    </div>
+
+    <div class="grid">
+        <div>
+            <div class="input-group">
+                <label>Gemini API Key</label>
+                <input type="text" id="apiKey" placeholder="AIzaSy...">
+            </div>
+            <div class="input-group">
+                <label>Pexels API Key (用于配图 - 可选)</label>
+                <input type="text" id="pexelsKey" placeholder="如有 Key 请输入...">
+            </div>
+            <div class="input-group">
+                <label>选择模型 (2.0 Flash 推荐)</label>
+                <select id="modelSelect">
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>并发线程数 (免费版建议 1)</label>
+                <input type="number" id="concurrency" value="1" min="1" max="10">
+            </div>
+        </div>
+
+        <div>
+            <div class="input-group">
+                <label>1. 导入数据 (wordbook.csv)</label>
+                <input type="file" id="csvFile" accept=".csv" style="width:100%">
+            </div>
+            
+            <div class="input-group">
+                <label>2. 加工策略</label>
+                <select id="processMode">
+                    <option value="new_only">仅处理生词 (推荐)</option>
+                    <option value="enrich_all">强制重新分析所有词</option>
+                    <option value="retry_error">仅重试失败 (Error) 的词</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button onclick="handleImport()">导入并保存</button>
+                <button id="startBtn" onclick="startQueue()" style="background: #10b981;">🚀 开始生产</button>
+                <button id="pauseBtn" onclick="pauseQueue()">⏸ 暂停</button>
+                <button id="resumeBtn" onclick="resumeQueue()">▶️ 继续</button>
+                <button class="danger" onclick="clearDB()" style="flex: 0.5;">清空</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar"><div class="progress-fill" id="pFill"></div></div>
+        <div class="progress-text" id="pText">准备就绪</div>
+    </div>
+
+    <div id="log">系统就绪。Pexels 功能已恢复。<br>提示：如果遇到大量红色报错，请将并发数改为 1。</div>
+</div>
+
+<script>
+    // --- 1. 数据库初始化 ---
+    // 保持 V14 名称以继承数据
+    const db = new Dexie("WordFactoryDB_V14");
+    db.version(1).stores({
+        words: 'headword, status'
+    });
+
+    // --- 全局状态 ---
+    let WORK_QUEUE = [];
+    let IS_RUNNING = false;
+    let IS_PAUSED = false;
+    let TOTAL_IN_QUEUE = 0;
+    let PROCESSED_COUNT = 0;
+
+    // --- UI 工具 ---
+    function log(msg, type = 'info') {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        if (type === 'error') div.className = 'log-err';
+        if (type === 'warn') div.className = 'log-warn';
+        if (type === 'success') div.className = 'log-success';
+        const logBox = document.getElementById('log');
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function updateStatus(status) {
+        const el = document.getElementById('statusIndicator');
+        el.textContent = status;
+        
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+
+        if (status === '运行中') {
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-block';
+            resumeBtn.style.display = 'none';
+        } else if (status === '已暂停') {
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'none';
+            resumeBtn.style.display = 'inline-block';
+        } else {
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            resumeBtn.style.display = 'none';
+            startBtn.disabled = false;
+        }
+    }
+
+    async function refreshStats() {
+        try {
+            const total = await db.words.count();
+            // 只要有同义词就算大概率完成了
+            const done = await db.words
+                .filter(w => w.synonyms && w.synonyms.length > 1)
+                .count();
+
+            const pending = WORK_QUEUE.length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statDone').textContent = done;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('dbStatus').textContent = "✅ IndexedDB";
+        } catch (e) {
+            document.getElementById('dbStatus').textContent = "❌ DB Error";
+        }
+    }
+
+    refreshStats();
+
+    // --- 2. 导入逻辑 (无变化) ---
+    function handleImport() {
+        const file = document.getElementById('csvFile').files[0];
+        if (!file) return log("请先选择 CSV 文件", "error");
+
+        log("正在解析 CSV...");
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: async function (results) {
+                const rows = results.data;
+                log(`读取 ${rows.length} 行，正在写入数据库...`);
+
+                try {
+                    await db.transaction('rw', db.words, async () => {
+                        for (let row of rows) {
+                            const word = (row['word'] || row['单词'] || row['headword'] || "").trim();
+                            if (!word) continue;
+
+                            const existing = await db.words.get(word);
+
+                            const newData = {
+                                headword: word,
+                                context_sentence: row['example'] || row['context_sentence'] || row['context'] || row['上下文'] || existing?.context_sentence || "",
+                                source: row['page_title'] || row['source_title'] || row['source'] || row['来源'] || existing?.source || "",
+                                user_definition: row['translation'] || row['翻译'] || row['user_definition'] || row['meaning'] || existing?.user_definition || "",
+                                phonetic: row['phonetic'] || existing?.phonetic || "",
+                                root: row['root'] || existing?.root || "",
+                                root_meaning: row['root_meaning'] || existing?.root_meaning || "",
+                                antonyms: row['antonyms'] || existing?.antonyms || "",
+                                scene_words: row['scene_words'] || existing?.scene_words || "",
+                                synonyms: row['synonyms'] || existing?.synonyms || "",
+                                image_base64: row['image_base64'] || existing?.image_base64 || "",
+                                partOfSpeech: row['partOfSpeech'] || existing?.partOfSpeech || "",
+                                enDef: row['enDef'] || existing?.enDef || "",
+                                knownStatus: row['knownStatus'] || existing?.knownStatus || "",
+                                tags: existing?.tags || "imported",
+                                status: existing?.status || "idle",
+                                updated_at: new Date().toISOString()
+                            };
+
+                            await db.words.put(newData);
+                        }
+                    });
+
+                    log(`✅ 成功导入 ${rows.length} 条数据！`, "success");
+                    refreshStats();
+                } catch (e) {
+                    log(`❌ 数据库错误: ${e.message}`, "error");
+                }
+            }
+        });
+    }
+
+    // --- 3. 队列管理 ---
+    async function startQueue() {
+        if (IS_RUNNING) return;
+        const key = document.getElementById('apiKey').value.trim();
+        if (!key) return log("❌ 请输入 Gemini API Key", "error");
+
+        const mode = document.getElementById('processMode').value;
+        log(`正在筛选任务 (模式: ${mode})...`);
+
+        const allWords = await db.words.toArray();
+        let tasks = [];
+
+        if (mode === 'new_only') {
+            tasks = allWords.filter(w => (!w.synonyms || w.synonyms.length < 2) || w.status === 'error');
+        } else if (mode === 'enrich_all') {
+            tasks = allWords;
+        } else if (mode === 'retry_error') {
+            tasks = allWords.filter(w => w.status === 'error');
+        }
+
+        if (tasks.length === 0) {
+            return log("⚠️ 队列为空：没有需要处理的单词。", "warn");
+        }
+
+        WORK_QUEUE = tasks.slice(); // 复制队列
+        TOTAL_IN_QUEUE = tasks.length;
+        PROCESSED_COUNT = 0;
+        
+        IS_RUNNING = true;
+        IS_PAUSED = false;
+        updateStatus('运行中');
+        
+        log(`🚀 开始处理，共 ${TOTAL_IN_QUEUE} 个任务。`);
+        runConcurrencyPool();
+    }
+
+    function pauseQueue() {
+        if (!IS_RUNNING) return;
+        IS_PAUSED = true;
+        IS_RUNNING = false;
+        updateStatus('已暂停');
+        log("⏸ 请求暂停... 当前任务完成后将停止。", "warn");
+    }
+
+    function resumeQueue() {
+        if (!IS_PAUSED) return;
+        IS_PAUSED = false;
+        IS_RUNNING = true;
+        updateStatus('运行中');
+        log("▶️ 继续处理...");
+        runConcurrencyPool();
+    }
+
+    // --- 4. 并发池 (已恢复 Pexels 逻辑) ---
+    async function runConcurrencyPool() {
+        const limit = parseInt(document.getElementById('concurrency').value) || 1;
+        const pexelsKey = document.getElementById('pexelsKey').value.trim(); // 获取 Key
+        const pool = [];
+
+        const worker = async () => {
+            while (WORK_QUEUE.length > 0) {
+                if (IS_PAUSED) break;
+
+                const item = WORK_QUEUE.pop();
+                if (!item) break;
+
+                try {
+                    await db.words.update(item.headword, { status: 'processing' });
+                    PROCESSED_COUNT++;
+                    requestAnimationFrame(() => updateProgressUI(item.headword));
+
+                    // 1. Gemini 分析
+                    const geminiResult = await fetchGeminiRobust(item.headword, item.context_sentence);
+                    
+                    // 2. 🔴 Pexels 配图 (功能回归)
+                    let imgData = item.image_base64 || ""; 
+                    // 如果有 Key 且原图为空，则抓取
+                    if (pexelsKey && !imgData) {
+                        try {
+                            // 在这里加个小延迟防止 Pexels 也限流
+                            await new Promise(r => setTimeout(r, 500));
+                            const newImg = await fetchPexelsImage(item.headword, pexelsKey);
+                            if (newImg) {
+                                imgData = newImg;
+                                log(`🖼️ 抓取到图片: ${item.headword}`, 'success');
+                            }
+                        } catch (e) {
+                            log(`⚠️ Pexels 配图失败: ${item.headword}`, "warn");
+                        }
+                    }
+
+                    // 3. 存入数据库
+                    await db.words.update(item.headword, {
+                        phonetic: geminiResult.phonetic ?? item.phonetic ?? "",
+                        user_definition: geminiResult.user_definition ?? item.user_definition ?? "",
+                        root: geminiResult.root ?? item.root ?? "",
+                        root_meaning: geminiResult.root_meaning ?? item.root_meaning ?? "",
+                        context_sentence: geminiResult.context_sentence ?? item.context_sentence ?? "",
+                        synonyms: geminiResult.synonyms ?? item.synonyms ?? "",
+                        antonyms: geminiResult.antonyms ?? item.antonyms ?? "",
+                        scene_words: geminiResult.scene_words ?? item.scene_words ?? "",
+                        image_base64: imgData, // 🔴 图片存入
+                        status: 'done',
+                        updated_at: new Date().toISOString()
+                    });
+
+                    log(`✅ [OK] ${item.headword}`, "success");
+                } catch (err) {
+                    log(`❌ [Fail] ${item.headword}: ${err.message}`, "error");
+                    await db.words.update(item.headword, { status: 'error' });
+                }
+
+                if (PROCESSED_COUNT % 5 === 0) refreshStats();
+            }
+        };
+
+        for (let i = 0; i < limit; i++) {
+            pool.push(worker());
+        }
+
+        await Promise.all(pool);
+
+        if (WORK_QUEUE.length === 0 && !IS_PAUSED) {
+            IS_RUNNING = false;
+            updateStatus('已完成');
+            log("🎉 所有任务处理完毕！", "success");
+            updateProgressUI("完成");
+        } else if (IS_PAUSED) {
+            log("✋ 已暂停。剩余任务: " + WORK_QUEUE.length);
+        }
+    }
+
+    function updateProgressUI(wordMsg) {
+        const pct = TOTAL_IN_QUEUE > 0
+            ? Math.round((PROCESSED_COUNT / TOTAL_IN_QUEUE) * 100)
+            : 0;
+        document.getElementById('pFill').style.width = `${pct}%`;
+        document.getElementById('pText').textContent =
+            `进度: ${pct}% (${PROCESSED_COUNT}/${TOTAL_IN_QUEUE}) - ${wordMsg}`;
+    }
+
+    // --- 5. AI 核心 (V14 稳定版逻辑) ---
+    async function fetchGeminiRobust(word, context) {
+        const key = document.getElementById('apiKey').value.trim();
+        const model = document.getElementById('modelSelect').value;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+
+        const prompt = `
+        You are a lexicographer. Analyze the English word: "${word}".
+        Context: "${context || ''}"
+        Return ONLY a JSON object.
+        Format:
+        {
+          "phonetic": "IPA",
+          "user_definition": "Chinese meaning (concise)",
+          "root": "Etymology root",
+          "root_meaning": "Root meaning",
+          "context_sentence": "Example sentence",
+          "synonyms": "syn1, syn2, syn3",
+          "antonyms": "ant1, ant2",
+          "scene_words": "scene1, scene2"
+        }`;
+
+        for (let i = 0; i < 4; i++) {
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            temperature: model.includes("2.0") ? 0.15 : 0,
+                            maxOutputTokens: 2048,
+                            responseMimeType: "application/json"
+                        }
+                    })
+                });
+
+                if (res.status === 429) {
+                    log(`⏳ [${word}] 429 限流，冷却 5s...`, "warn");
+                    await new Promise(r => setTimeout(r, 5000));
+                    continue;
+                }
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!rawText) throw new Error("Empty Response");
+
+                const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error("No JSON found");
+
+                return JSON.parse(jsonMatch[0]);
+            } catch (err) {
+                if (i === 3) throw err;
+                await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+            }
+        }
+    }
+
+    // --- 🔴 6. Pexels 图片功能 (完整回归) ---
+    async function fetchPexelsImage(word, apiKey) {
+        const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(word)}&per_page=1&orientation=landscape`;
+        
+        const res = await fetch(url, {
+            headers: { Authorization: apiKey }
+        });
+        
+        if (!res.ok) throw new Error(`Pexels HTTP ${res.status}`);
+        
+        const data = await res.json();
+        if (data.photos && data.photos.length > 0) {
+            const imgUrl = data.photos[0].src.medium;
+            return await toBase64(imgUrl);
+        }
+        return "";
+    }
+
+    async function toBase64(url) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) {
+            console.error("Image convert failed", e);
+            return "";
+        }
+    }
+
+    // --- 7. 导出逻辑 (V14 防崩版) ---
+    async function exportData() {
+        const words = await db.words.toArray();
+        if (!words.length) return log("无数据可导出", "warn");
+
+        const csvData = words.map(w => ({
+            word: w.headword || "",
+            phonetic: w.phonetic || "",
+            meaning: w.user_definition || "",
+            root: w.root || "",
+            root_meaning: w.root_meaning || "",
+            example: w.context_sentence || "",
+            synonyms: w.synonyms || "",
+            antonyms: w.antonyms || "",
+            scene_words: w.scene_words || "",
+            partOfSpeech: w.partOfSpeech || "",
+            enDef: w.enDef || "",
+            knownStatus: w.knownStatus || "",
+            source: w.source || "",
+            image_base64: w.image_base64 || "", // 🔴 确保图片字段被导出
+            tags: w.tags || ""
+        }));
+
+        try {
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Gemini_Dict_Safe_${Date.now()}.csv`;
+            link.click();
+            log("✅ CSV 导出成功！", "success");
+        } catch (e) {
+            log(`❌ 导出失败: ${e.message}`, "error");
+        }
+    }
+
+    async function clearDB() {
+        if (confirm("⚠️ 确定清空所有数据？")) {
+            await db.words.clear();
+            WORK_QUEUE = [];
+            TOTAL_IN_QUEUE = 0;
+            PROCESSED_COUNT = 0;
+            IS_RUNNING = false;
+            IS_PAUSED = false;
+            updateStatus('空闲');
+            
+            document.getElementById('pFill').style.width = '0%';
+            document.getElementById('pText').textContent = '准备就绪';
+            await refreshStats();
+            log("🔥 数据库已清空", "warn");
+        }
+    }
+</script>
+
+</body>
+</html>
