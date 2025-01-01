@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Ziyang Vocab Master (公益开源版)</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    
+    <!-- Shared Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js"></script>
+
+    <style>
+        /* Global Tab Styles */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; background: #f3f4f6; }
+        .tab-bar { display: flex; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 0 20px; overflow-x: auto; white-space: nowrap; }
+        .tab-btn { padding: 16px 24px; cursor: pointer; border: none; background: none; font-size: 16px; font-weight: 600; color: #6b7280; border-bottom: 3px solid transparent; flex-shrink: 0; }
+        .tab-btn:hover { color: #2563eb; }
+        .tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; }
+        .tab-content { display: none; padding: 10px; max-width: 1200px; margin: 0 auto; }
+        .tab-content.active { display: block; }
+        .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 13px; margin-top: 20px; }
+        
+        /* CSS Reset for Scoped containers */
+        .scoped-container { position: relative; }
+    </style>
+<style>
+/* ====== APP 0 CSS ====== */
+#tab0 * { 
+      box-sizing: border-box; }
+#tab0 { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans CJK SC", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f7;
+      color: #222; }
+#tab0 .container { 
+      max-width: 1080px;
+      margin: 24px auto 40px;
+      padding: 24px 24px 32px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12); }
+#tab0 h1 { 
+      font-size: 22px;
+      margin: 0 0 8px;
+      color: #111827; }
+#tab0 h2 { 
+      font-size: 18px;
+      margin: 24px 0 12px;
+      color: #111827; }
+#tab0 p { 
+      margin: 4px 0 8px;
+      font-size: 14px;
+      color: #4b5563; }
+#tab0 .controls { 
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0 10px;
+      padding: 12px 14px;
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb; }
+#tab0 input[type="file"] { 
+      font-size: 13px; }
+#tab0 button { 
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.1s ease, opacity 0.1s ease; }
+#tab0 button:active { 
+      transform: translateY(1px);
+      box-shadow: none; }
+#tab0 #parseBtn { 
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.35); }
+#tab0 #parseBtn:disabled { 
+      background: #93c5fd;
+      box-shadow: none;
+      cursor: not-allowed; }
+#tab0 #exportBtn { 
+      background: #10b981;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35); }
+#tab0 #exportBtn:disabled { 
+      background: #a7f3d0;
+      box-shadow: none;
+      cursor: not-allowed; }
+#tab0 #fileInfo { 
+      font-size: 13px;
+      color: #374151;
+      margin-top: 4px; }
+#tab0 .summary { 
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 10px 12px 12px;
+      max-height: 260px;
+      overflow: auto; }
+#tab0 table { 
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px; }
+#tab0 thead { 
+      position: sticky;
+      top: 0;
+      background: #f3f4f6;
+      z-index: 1; }
+#tab0 th, #tab0 td { 
+      padding: 6px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      white-space: nowrap; }
+#tab0 th { 
+      font-weight: 600;
+      color: #374151; }
+#tab0 tr:nth-child(even) td { 
+      background: #f9fafb; }
+#tab0 tr:last-child td { 
+      border-bottom: none; }
+#tab0 td.notes { 
+      white-space: normal;
+      max-width: 360px; }
+#tab0 #log { 
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #0b1120;
+      color: #e5e7eb;
+      padding: 10px 12px;
+      font-size: 12px;
+      max-height: 260px;
+      overflow: auto;
+      line-height: 1.4; }
+#tab0 #log span.time { 
+      color: #9ca3af; }
+#tab0 .badge { 
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #eef2ff;
+      color: #3730a3;
+      margin-left: 8px; }
+@media (max-width: 720px)  {
+  #tab0 .container { 
+        margin: 12px;
+        padding: 16px 14px 22px; }
+}
+#tab0 .controls { 
+        flex-direction: column;
+        align-items: flex-start; }
+/* ====== APP 1 CSS ====== */
+#tab1 {  --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; }
+#tab1 { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            line-height: 1.5; }
+#tab1 .card { 
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 1px solid var(--border); }
+#tab1 h2 { 
+            margin-top: 0;
+            color: var(--text);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center; }
+#tab1 .grid { 
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px; }
+#tab1 .input-group {  margin-bottom: 15px; }
+#tab1 label { 
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            color: #64748b; }
+#tab1 input[type="text"], #tab1 input[type="number"], #tab1 select { 
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            box-sizing: border-box; }
+#tab1 input:focus { 
+            border-color: var(--primary);
+            outline: none; }
+#tab1 .btn-group { 
+            display: flex;
+            gap: 10px;
+            margin-top: 20px; }
+#tab1 button { 
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1; }
+#tab1 button:hover {  opacity: 0.9; }
+#tab1 button:disabled { 
+            background: #cbd5e1;
+            cursor: not-allowed; }
+#tab1 /* 暂停按钮样式 */
+        #pauseBtn {  background: #f59e0b; display: none; }
+#tab1 #resumeBtn {  background: #10b981; display: none; }
+#tab1 button.secondary { 
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text); }
+#tab1 button.danger {  background: #ef4444; }
+#tab1 .stats-bar { 
+            display: flex;
+            gap: 20px;
+            background: #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em; }
+#tab1 .stat-item span { 
+            font-weight: bold;
+            color: var(--primary); }
+#tab1 #log { 
+            background: #1e1e1e;
+            color: #4ade80;
+            padding: 15px;
+            border-radius: 8px;
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            margin-top: 20px;
+            border: 1px solid #333; }
+#tab1 .log-err {  color: #f87171; }
+#tab1 .log-warn {  color: #fbbf24; }
+#tab1 .log-success {  color: #4ade80; }
+#tab1 .progress-container {  margin-top: 20px; }
+#tab1 .progress-bar { 
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden; }
+#tab1 .progress-fill { 
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s; }
+#tab1 .progress-text { 
+            font-size: 0.85em;
+            text-align: right;
+            margin-top: 4px;
+            color: #64748b; }
+/* ====== APP 2 CSS ====== */
+#tab2 * { box-sizing:border-box;margin:0;padding:0 }
+#tab2 { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f3f4f6;color:#111827 }
+#tab2 .app { max-width:1100px;margin:0 auto;padding:16px 10px 32px }
+#tab2 h1 { font-size:24px;margin-bottom:4px }
+#tab2 .subtitle { font-size:12px;color:#6b7280;margin-bottom:10px }
+#tab2 .panel { background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 10px 25px rgba(15,23,42,.08) }
+#tab2 .stats { display:flex;flex-wrap:wrap;gap:10px;font-size:13px;margin-bottom:6px }
+#tab2 .stats span { font-weight:600;color:#4f46e5 }
+#tab2 .controls { display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;margin-bottom:4px }
+#tab2 .controls input[type=number] { width:80px;border-radius:999px;border:1px solid #d1d5db;padding:4px 8px }
+#tab2 button { cursor:pointer;border:none;border-radius:999px;background:#4f46e5;color:#fff;padding:6px 14px;font-size:13px;font-weight:500 }
+#tab2 button:hover { background:#4338ca }
+#tab2 button:disabled { background:#9ca3af;cursor:not-allowed }
+#tab2 .btn-mini { padding:4px 10px;font-size:11px }
+#tab2 .btn-green { background:#0f766e }
+#tab2 .btn-blue { background:#0369a1 }
+#tab2 .btn-red { background:#ef4444 }
+#tab2 .session-info { font-size:11px;color:#6b7280;min-height:16px;margin-bottom:6px }
+#tab2 .card-holder { min-height:260px }
+#tab2 .word-card { background:linear-gradient(135deg,#eef2ff,#e0f2fe);border-radius:18px;padding:14px 14px 12px;box-shadow:0 18px 40px rgba(15,23,42,.16) }
+#tab2 .card-header { display:flex;justify-content:space-between;font-size:11px;color:#4b5563;margin-bottom:4px }
+#tab2 .badge-row { display:flex;gap:6px;align-items:center }
+#tab2 .badge { padding:2px 8px;border-radius:999px;font-weight:600 }
+#tab2 .badge-wrong { background:#fee2e2;color:#b91c1c }
+#tab2 .badge-time { background:#dbeafe;color:#1d4ed8 }
+#tab2 .card-main { display:flex;gap:12px;margin:8px 0;align-items:flex-start }
+#tab2 .col-word { flex:.85;border-right:1px dashed rgba(148,163,184,.8);padding-right:8px }
+#tab2 .col-extra { flex:1.15;padding-left:4px }
+#tab2 .spelling { font-size:30px;font-weight:700;margin-bottom:4px }
+#tab2 .phonetic { font-size:15px;color:#374151;margin-bottom:4px }
+#tab2 .meaning-cn { font-size:26px;font-weight:700;color:#111827;line-height:1.2 }
+#tab2 .meaning-en { font-size:13px;color:#374151;margin-top:4px }
+#tab2 .card-actions { display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 }
+#tab2 .card-actions button { flex:1;font-size:12px;padding:5px 8px }
+#tab2 .btn-purple { background:#7e22ce }
+#tab2 .panel-interact { background:rgba(255,255,255,.65);border-radius:12px;padding:10px;font-size:14px;line-height:1.6;min-height:52px;box-shadow:inset 0 2px 6px rgba(15,23,42,.06) }
+#tab2 .clickable-word { text-decoration:underline;cursor:pointer;margin-right:6px }
+#tab2 .clickable-word:hover { color:#1d4ed8;background:rgba(37,99,235,.12);border-radius:4px;padding:0 3px }
+#tab2 .yesno { display:flex;gap:8px;margin-top:8px }
+#tab2 .btn-yes { background:#22c55e }
+#tab2 .btn-no { background:#f97373 }
+#tab2 .db-status { font-size:11px;color:#059669;margin-bottom:6px }
+#tab2 ul { list-style:none }
+#tab2 #bookList li { padding:4px 8px;border-bottom:1px dashed #e5e7eb }
+#tab2 #bookList .title { font-size:13px;font-weight:500 }
+#tab2 #bookList .meta { font-size:11px;color:#6b7280 }
+@media(max-width:780px) {
+  #tab2 .card-main { flex-direction:column }
+}
+#tab2 .col-word { border-right:none;border-bottom:1px dashed rgba(148,163,184,.8);padding-bottom:8px }
+</style>
+</head>
+<body>
+
+    <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(0)">1. PDF 词库提取器</button>
+        <button class="tab-btn" onclick="switchTab(1)">2. AI 单词加工厂</button>
+        <button class="tab-btn" onclick="switchTab(2)">3. 沉浸背单词测验</button>
+    </div>
+    <div id="tab0" class="tab-content active scoped-container">
+<div class="container">
+    <h1>GRE 基础24套 PDF 词库解析器 → V14 CSV
+      <span class="badge">仅本地运行 · 不上传文件</span>
+    </h1>
+    <p>
+      使用方法：① 选择 <strong>基础24套（1-6）手拍.pdf</strong>（或同结构 PDF） → ② 点击「解析 PDF」 → ③ 核对下面的分套词数 → ④ 点击「导出 CSV」，并在单词工厂 V14 中「导入并保存」。
+    </p>
+
+    <div class="controls">
+      <input type="file" id="pdfFile" accept="application/pdf" />
+      <button id="parseBtn" disabled>解析 PDF</button>
+      <button id="exportBtn" disabled>导出 CSV（V14 可导入）</button>
+    </div>
+    <div id="fileInfo"></div>
+
+    <h2>分套解析摘要</h2>
+    <div class="summary">
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>套数</th>
+            <th>核心词汇（解析 / 原书）</th>
+            <th>基础补充（解析 / 原书）</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- filled by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <h2>解析日志</h2>
+    <pre id="log"></pre>
+  </div>
+
+  <!-- pdf.js CDN（经典 2.x 版本，提供全局 pdfjsLib） -->
+    </div>
+    <div id="tab1" class="tab-content  scoped-container">
+<div class="card">
+    <h2>
+        🏭 单词工厂 V15 (全功能最终版)
+        <button class="secondary" onclick="exportData()" style="width: auto; padding: 5px 15px; font-size: 13px;">📥 强力导出 CSV</button>
+    </h2>
+    
+    <div class="stats-bar">
+        <div class="stat-item">总词条: <span id="statTotal">0</span></div>
+        <div class="stat-item">AI已分析: <span id="statDone">0</span></div>
+        <div class="stat-item">队列待处理: <span id="statPending">0</span></div>
+        <div class="stat-item">状态: <span id="statusIndicator">空闲</span></div>
+    </div>
+
+    <div class="grid">
+        <div>
+            <div class="input-group">
+                <label>Gemini API Key</label>
+                <input type="text" id="apiKey" placeholder="AIzaSy...">
+            </div>
+            <div class="input-group">
+                <label>Pexels API Key (用于配图 - 可选)</label>
+                <input type="text" id="pexelsKey" placeholder="如有 Key 请输入...">
+            </div>
+            <div class="input-group">
+                <label>选择模型 (2.0 Flash 推荐)</label>
+                <select id="modelSelect">
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>并发线程数 (免费版建议 1)</label>
+                <input type="number" id="concurrency" value="1" min="1" max="10">
+            </div>
+        </div>
+
+        <div>
+            <div class="input-group">
+                <label>1. 导入数据 (wordbook.csv)</label>
+                <input type="file" id="csvFile" accept=".csv" style="width:100%">
+            </div>
+            
+            <div class="input-group">
+                <label>2. 加工策略</label>
+                <select id="processMode">
+                    <option value="new_only">仅处理生词 (推荐)</option>
+                    <option value="enrich_all">强制重新分析所有词</option>
+                    <option value="retry_error">仅重试失败 (Error) 的词</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button onclick="handleImport()">导入并保存</button>
+                <button id="startBtn" onclick="startQueue()" style="background: #10b981;">🚀 开始生产</button>
+                <button id="pauseBtn" onclick="pauseQueue()">⏸ 暂停</button>
+                <button id="resumeBtn" onclick="resumeQueue()">▶️ 继续</button>
+                <button class="danger" onclick="clearDB()" style="flex: 0.5;">清空</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar"><div class="progress-fill" id="pFill"></div></div>
+        <div class="progress-text" id="pText">准备就绪</div>
+    </div>
+
+    <div id="log">系统就绪。Pexels 功能已恢复。<br>提示：如果遇到大量红色报错，请将并发数改为 1。</div>
+</div>
+    </div>
+    <div id="tab2" class="tab-content  scoped-container">
+<div class="app">
+  <h1>背单词 V49</h1>
+  <div class="subtitle">↑ 上一词　↓ 下一词　← 认识　→ 不认识　1 想　2 场　3 拼　4 读　空格 听3遍 + 显示释义10秒</div>
+
+  <section class="panel">
+    <div class="stats">
+      <div>总单词：<span id="statTotal">0</span></div>
+      <div>不认识：<span id="statUnknown">0</span></div>
+      <div>新词：<span id="statNew">0</span></div>
+      <div>认识：<span id="statKnown">0</span></div>
+      <div>书本：<span id="statBooks">0</span></div>
+    </div>
+    <div class="controls">
+      <label>每轮单词：
+        <input type="number" id="sessionSize" min="1" max="200" value="20">
+      </label>
+      <button id="btnStart" disabled>开始背单词</button>
+      <span style="font-size:11px;color:#6b7280">提示：左/右只标记认识状态，不自动跳词；上/下控制切换单词。</span>
+    </div>
+    <div id="sessionInfo" class="session-info"></div>
+    <div id="cardHolder" class="card-holder"></div>
+  </section>
+
+  <section class="panel">
+    <div class="db-status" id="dbStatus">数据库初始化中...</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px">
+      <div>
+        <button class="btn-blue btn-mini" id="btnImportAll">导入备份 CSV</button>
+        <button class="btn-blue btn-mini" id="btnImportKnown">导入认识 CSV</button>
+        <button class="btn-blue btn-mini" id="btnImportUnknown">导入错题 CSV</button>
+        <input type="file" id="csvAllInput" accept=".csv" style="display:none">
+        <input type="file" id="csvKnownInput" accept=".csv" style="display:none">
+        <input type="file" id="csvUnknownInput" accept=".csv" style="display:none">
+      </div>
+      <div>
+        <button class="btn-green btn-mini" id="btnExportAll">导出全部</button>
+        <button class="btn-green btn-mini" id="btnExportKnown">导出认识</button>
+        <button class="btn-green btn-mini" id="btnExportUnknown">导出错题</button>
+      </div>
+    </div>
+    <ul id="bookList"></ul>
+    <div style="text-align:right;margin-top:8px">
+      <button class="btn-red btn-mini" id="btnClearDB">清空数据库</button>
+    </div>
+  </section>
+</div>
+    </div>
+
+    <div class="footer">
+        🚀 Developed by <strong>Ziyang Xu</strong> (10th Grade, High School Affiliated to BNU) <br>
+        Open Source & Free software designed for students to study customized textbook vocabularies.
+    </div>
+
+    <script>
+        function switchTab(index) {
+            document.querySelectorAll('.tab-content').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.tab-btn').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+        }
+    </script>
+<!-- ====== APP 0 JS ====== -->
+<script>
+(function() {
+
+    if (window['pdfjsLib']) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+    }
+
+    (function () {
+      "use strict";
+
+      const fileInput = document.getElementById("pdfFile");
+      const parseBtn = document.getElementById("parseBtn");
+      const exportBtn = document.getElementById("exportBtn");
+      const logEl = document.getElementById("log");
+      const summaryTableBody = document.querySelector("#summaryTable tbody");
+      const fileInfoEl = document.getElementById("fileInfo");
+
+      let entriesMap = new Map(); // key: lowercased word, value: entry object
+      let summaryRows = [];
+      let currentFileName = "";
+
+// 常见停用词 & 噪音单词（例句、题干中高频出现，但不应作为 GRE 词头）
+const STOPWORDS = new Set([
+  "is","are","was","were","am","be","been","being",
+  "have","has","had","do","does","did",
+  "can","could","will","would","should","may","might","must","shall",
+  "the","a","an","of","to","in","on","at","for","by","with","about","from",
+  "and","but","or","as",
+  "that","this","these","those","it","its",
+  "he","she","they","we","you","your","our","their","him","her","them",
+  "who","whom","which","what","when","where","why","how",
+  "page","pages","source","section","following","table","passage","question","choice","choices","blank"
+]);
+
+// 判断一个候选词是否“噪音”：长度 < 3 或出现在停用词表中
+function isNoisyHeadword(word) {
+  if (!word) return true;
+  const w = String(word).toLowerCase();
+  if (w.length < 3) return true;
+  return STOPWORDS.has(w);
+}
+
+      function log(message) {
+        const now = new Date();
+        const ts = now.toLocaleTimeString();
+        const line = document.createElement("div");
+        const spanTime = document.createElement("span");
+        spanTime.className = "time";
+        spanTime.textContent = "[" + ts + "] ";
+        line.appendChild(spanTime);
+        line.appendChild(document.createTextNode(message));
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+
+      function resetStateForNewFile() {
+        entriesMap.clear();
+        summaryRows = [];
+        summaryTableBody.innerHTML = "";
+        logEl.textContent = "";
+      }
+
+      fileInput.addEventListener("change", function (e) {
+        const file = e.target.files && e.target.files[0];
+        resetStateForNewFile();
+        if (!file) {
+          fileInfoEl.textContent = "";
+          parseBtn.disabled = true;
+          exportBtn.disabled = true;
+          return;
+        }
+        currentFileName = file.name;
+        const mb = (file.size / (1024 * 1024)).toFixed(2);
+        fileInfoEl.textContent = "已选择文件：" + file.name + "（约 " + mb + " MB）";
+        parseBtn.disabled = false;
+        exportBtn.disabled = true;
+        log("已选择 PDF 文件，请点击「解析 PDF」。");
+      });
+
+      parseBtn.addEventListener("click", function () {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) {
+          alert("请先选择 PDF 文件。");
+          return;
+        }
+        if (!window["pdfjsLib"]) {
+          alert("pdf.js 加载失败，请确认网络可以访问 cdnjs。");
+          return;
+        }
+
+        parseBtn.disabled = true;
+        exportBtn.disabled = true;
+        entriesMap.clear();
+        summaryRows = [];
+        summaryTableBody.innerHTML = "";
+        logEl.textContent = "";
+        log("开始读取 PDF …");
+
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const typedarray = new Uint8Array(ev.target.result);
+          pdfjsLib
+            .getDocument({ data: typedarray })
+            .promise.then(async function (pdf) {
+              log("PDF 加载成功，共 " + pdf.numPages + " 页。");
+              const fullTextParts = [];
+              for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                try {
+                  const page = await pdf.getPage(pageNum);
+                  const textContent = await page.getTextContent();
+                  const pageText = textContent.items
+                    .map((it) => it.str)
+                    .join("\n");
+                  fullTextParts.push(pageText);
+                  log("第 " + pageNum + " 页文本提取完成。");
+                } catch (err) {
+                  console.error(err);
+                  log("第 " + pageNum + " 页提取失败：" + (err.message || err));
+                }
+              }
+              const fullText = fullTextParts.join(
+                "\n\n---PAGE BREAK---\n\n"
+              );
+              log("PDF 文本提取完成，开始解析结构 …");
+              processFullText(fullText);
+              updateSummaryTable();
+              log("解析完成，共得到 " + entriesMap.size + " 个不同单词（去重后）。");
+              if (entriesMap.size > 0) {
+                exportBtn.disabled = false;
+              }
+              parseBtn.disabled = false;
+            })
+            .catch(function (err) {
+              console.error(err);
+              parseBtn.disabled = false;
+              alert("解析 PDF 失败：" + (err.message || err));
+            });
+        };
+        reader.onerror = function (err) {
+          console.error(err);
+          parseBtn.disabled = false;
+          alert("读取文件失败：" + (err.message || err));
+        };
+        reader.readAsArrayBuffer(file);
+      });
+
+      exportBtn.addEventListener("click", function () {
+        if (!entriesMap || entriesMap.size === 0) {
+          alert("当前没有可导出的数据，请先解析 PDF。");
+          return;
+        }
+        const entries = Array.from(entriesMap.values());
+        const csvText = buildCsv(entries);
+        const blob = new Blob([csvText], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const baseName = currentFileName
+          ? currentFileName.replace(/\.pdf$/i, "")
+          : "gre_词库";
+        a.href = url;
+        a.download = baseName + "_words_for_V14.csv";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        log("CSV 导出完成，可以到单词工厂 V14 里导入。");
+      });
+
+
+      function processFullText(fullText) {
+        entriesMap.clear();
+        summaryRows = [];
+
+        let text = fullText || "";
+        // 轻度清洗：去掉常见不可见空格
+        text = text.replace(/\u00A0/g, " ");
+
+        const anchorCore = "核心词汇考法精析";
+        const anchorSupp = "基础单词补充";
+
+        const corePositions = [];
+        let searchIdx = 0;
+        while (true) {
+          const idx = text.indexOf(anchorCore, searchIdx);
+          if (idx === -1) break;
+          corePositions.push(idx);
+          searchIdx = idx + anchorCore.length;
+        }
+
+        if (corePositions.length === 0) {
+          log("没有直接找到“核心词汇考法精析”标题，将只尝试解析带词性的基础补充条目（可能丢失纯单词清单）。");
+          // 备用：不按套，仅按整本 PDF 解析“基础单词补充”样式的条目
+          const fakeSetNum = 1;
+          const dummySummary = {
+            setNum: fakeSetNum,
+            expectedCore: null,
+            parsedCore: 0,
+            expectedSupplement: null,
+            parsedSupplement: parseSupplementBlock(text, fakeSetNum),
+          };
+          summaryRows.push(dummySummary);
+          return;
+        }
+
+        for (let i = 0; i < corePositions.length; i++) {
+          const startIdx = corePositions[i];
+          const endIdx =
+            i + 1 < corePositions.length ? corePositions[i + 1] : text.length;
+          const chunk = text.slice(startIdx, endIdx);
+
+          // 头一行：类似 “《GRE核心词汇考法精析》收录单词（共39词）”
+          const firstNewline = chunk.indexOf("\n");
+          const headerLine =
+            firstNewline !== -1 ? chunk.slice(0, firstNewline) : chunk;
+          let expectedCore = null;
+          const mCore = headerLine.match(/共(\d+)词/);
+          if (mCore) {
+            expectedCore = parseInt(mCore[1], 10) || null;
+          }
+
+          const suppIdxInChunk = chunk.indexOf(anchorSupp);
+          let coreBlock = "";
+          let supplementBlock = "";
+          let expectedSupplement = null;
+
+          if (suppIdxInChunk !== -1) {
+            // 核心词的正文：从标题行之后到 “基础单词补充” 之前
+            coreBlock = firstNewline !== -1
+              ? chunk.slice(firstNewline + 1, suppIdxInChunk)
+              : "";
+            // 基础补充的标题行 + 正文
+            const suppHeaderEnd =
+              chunk.indexOf("\n", suppIdxInChunk) !== -1
+                ? chunk.indexOf("\n", suppIdxInChunk)
+                : chunk.length;
+            const suppHeaderLine = chunk.slice(suppIdxInChunk, suppHeaderEnd);
+            const mSupp = suppHeaderLine.match(/共(\d+)词/);
+            if (mSupp) {
+              expectedSupplement = parseInt(mSupp[1], 10) || null;
+            }
+            supplementBlock =
+              suppHeaderEnd < chunk.length
+                ? chunk.slice(suppHeaderEnd + 1)
+                : "";
+          } else {
+            // 没有基础补充标题时，整块都当核心词正文
+            coreBlock =
+              firstNewline !== -1 ? chunk.slice(firstNewline + 1) : chunk;
+          }
+
+          const setNum = i + 1;
+          log(
+            "第 " +
+              setNum +
+              " 套：找到标题，开始解析核心词与基础补充 …"
+          );
+
+          const setSummary = {
+            setNum: setNum,
+            expectedCore: expectedCore,
+            parsedCore: parseCoreBlock(coreBlock, setNum),
+            expectedSupplement: expectedSupplement,
+            parsedSupplement: 0,
+          };
+
+          if (supplementBlock && supplementBlock.trim()) {
+            setSummary.parsedSupplement = parseSupplementBlock(
+              supplementBlock,
+              setNum
+            );
+          }
+
+          summaryRows.push(setSummary);
+        }
+      }
+      function parseCoreBlock(text, setNum) {
+        if (!text) return 0;
+        let cleaned = text.replace(/[\r\t]+/g, " ");
+        cleaned = cleaned.replace(/\s+/g, " ");
+        const tokens = cleaned.split(/\s+/);
+        const localSet = new Set();
+        const sourceLabel = "核心词汇 第" + setNum + "套";
+
+        for (let raw of tokens) {
+          if (!raw) continue;
+          let token = raw
+            .replace(/^[^A-Za-z\-]+/, "")
+            .replace(/[^A-Za-z\-]+$/, "");
+          if (!token) continue;
+          if (!/^[A-Za-z][A-Za-z\-]*$/.test(token)) continue;
+          if (isNoisyHeadword(token)) continue;
+
+          const lower = token.toLowerCase();
+          if (localSet.has(lower)) continue;
+          localSet.add(lower);
+
+          addOrMergeEntry(token, {
+            translation: "",
+            partOfSpeech: "",
+            enDef: "",
+            example: "",
+            source: sourceLabel,
+          });
+        }
+
+        log(
+          "第 " +
+            setNum +
+            " 套核心词区域：解析到 " +
+            localSet.size +
+            " 个看起来像单词的 token。"
+        );
+        return localSet.size;
+      }
+
+      function parseSupplementBlock(text, setNum) {
+        if (!text) return 0;
+        text = text.replace(/\r\n/g, "\n");
+        const rawLines = text
+          .split(/\n+/)
+          .map((l) => l.trim())
+          .filter((l) => l);
+
+        const blocks = [];
+        let current = "";
+
+        function isNewEntryLine(line) {
+          // 练习题题号 / 选项等，直接排除
+          if (/^[A-D]\./.test(line)) return false;
+          if (/^\d+\s*[-．\.]/.test(line)) return false;
+          if (line.indexOf("___") !== -1) return false;
+
+          const headMatch = line.match(/^([A-Za-z][A-Za-z\-]*)\b/);
+          if (!headMatch) return false;
+          const head = headMatch[1];
+          if (isNoisyHeadword(head)) return false;
+
+          const rest = line.slice(headMatch[0].length);
+          const earlyRest = rest.slice(0, 40);
+          if (
+            /\b(n\.|adj\.|adv\.|vt\.|vi\.|v\.|prep\.|conj\.|pron\.)\b/.test(
+              earlyRest
+            )
+          ) {
+            return true;
+          }
+          // 只有单词一行（下一行才是词性），也当作新条目
+          if (!rest.trim()) {
+            return true;
+          }
+          return false;
+        }
+
+        for (const line of rawLines) {
+          if (isNewEntryLine(line)) {
+            if (current) {
+              blocks.push(current.trim());
+            }
+            current = line;
+          } else {
+            if (current) {
+              current += " " + line;
+            } else {
+              current = line;
+            }
+          }
+        }
+        if (current) {
+          blocks.push(current.trim());
+        }
+
+        let parsedCount = 0;
+        const sourceLabel = "基础补充 第" + setNum + "套";
+
+        for (const block of blocks) {
+          const ok = parseSupplementEntryBlock(block, sourceLabel);
+          if (ok) {
+            parsedCount++;
+          }
+        }
+
+        log(
+          "第 " +
+            setNum +
+            " 套基础补充区域：识别出 " +
+            blocks.length +
+            " 个候选条目，成功解析 " +
+            parsedCount +
+            " 个。"
+        );
+        return parsedCount;
+      }
+
+      function parseSupplementEntryBlock(block, sourceLabel) {
+        const headMatch = block.match(/^([A-Za-z][A-Za-z\-]*)\b/);
+        if (!headMatch) return false;
+        const word = headMatch[1];
+        if (isNoisyHeadword(word)) return false;
+        let rest = block.slice(headMatch[0].length);
+
+        const posMatch = rest.match(
+          /\b(n\.|adj\.|adv\.|vt\.|vi\.|v\.|prep\.|conj\.|pron\.)\b/
+        );
+        let pos = "";
+        let afterPos = rest;
+        if (posMatch) {
+          pos = posMatch[1];
+          afterPos = rest.slice(posMatch.index + pos.length);
+        } else {
+          afterPos = rest;
+        }
+
+        let colonIndex = afterPos.indexOf("：");
+        if (colonIndex === -1) {
+          colonIndex = afterPos.indexOf(":");
+        }
+        let translation = "";
+        let enDef = "";
+        if (colonIndex !== -1) {
+          translation = afterPos.slice(0, colonIndex).trim();
+          enDef = afterPos.slice(colonIndex + 1).trim();
+        } else {
+          translation = afterPos.trim();
+        }
+
+        addOrMergeEntry(word, {
+          translation: translation,
+          partOfSpeech: pos,
+          enDef: enDef,
+          example: "",
+          source: sourceLabel,
+        });
+        return true;
+      }
+
+      function addOrMergeEntry(word, info) {
+        const key = word.toLowerCase();
+        let entry = entriesMap.get(key);
+        if (!entry) {
+          entry = {
+            word: word,
+            translation: "",
+            partOfSpeech: "",
+            enDef: "",
+            example: "",
+            source: "",
+            knownStatus: "unknown",
+          };
+        }
+        if (info.translation && !entry.translation) {
+          entry.translation = info.translation;
+        }
+        if (info.partOfSpeech && !entry.partOfSpeech) {
+          entry.partOfSpeech = info.partOfSpeech;
+        }
+        if (info.enDef && !entry.enDef) {
+          entry.enDef = info.enDef;
+        }
+        if (info.example && !entry.example) {
+          entry.example = info.example;
+        }
+        if (info.source) {
+          if (entry.source) {
+            if (!entry.source.includes(info.source)) {
+              entry.source += "; " + info.source;
+            }
+          } else {
+            entry.source = info.source;
+          }
+        }
+        entriesMap.set(key, entry);
+      }
+
+      function updateSummaryTable() {
+        summaryTableBody.innerHTML = "";
+        if (!summaryRows.length) return;
+
+        function formatCount(parsed, expected) {
+          if (expected == null || isNaN(expected)) {
+            return parsed || 0;
+          }
+          return (parsed || 0) + " / " + expected;
+        }
+
+        for (const row of summaryRows) {
+          const tr = document.createElement("tr");
+
+          const tdSet = document.createElement("td");
+          tdSet.textContent = row.setNum;
+
+          const tdCore = document.createElement("td");
+          tdCore.textContent = formatCount(row.parsedCore, row.expectedCore);
+
+          const tdSup = document.createElement("td");
+          tdSup.textContent = formatCount(
+            row.parsedSupplement,
+            row.expectedSupplement
+          );
+
+          const tdNote = document.createElement("td");
+          tdNote.className = "notes";
+          const notes = [];
+          if (
+            row.expectedCore &&
+            row.parsedCore &&
+            Math.abs(row.parsedCore - row.expectedCore) > 3
+          ) {
+            notes.push("核心词数量与原书差异较大");
+          }
+          if (
+            row.expectedSupplement &&
+            row.parsedSupplement &&
+            Math.abs(row.parsedSupplement - row.expectedSupplement) > 3
+          ) {
+            notes.push("基础补充数量与原书差异较大");
+          }
+          tdNote.textContent = notes.join("；");
+
+          tr.appendChild(tdSet);
+          tr.appendChild(tdCore);
+          tr.appendChild(tdSup);
+          tr.appendChild(tdNote);
+          summaryTableBody.appendChild(tr);
+        }
+      }
+
+      function csvEscape(value) {
+        if (value == null) return "";
+        const str = String(value);
+        if (/[",\n\r]/.test(str)) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      }
+
+      function buildCsv(entries) {
+        // 使用与 V14 内部字段一致的表头，减少映射歧义
+        const headers = [
+          "headword",
+          "user_definition",
+          "partOfSpeech",
+          "enDef",
+          "context_sentence",
+          "source",
+          "knownStatus",
+        ];
+        const lines = [];
+        lines.push(headers.join(","));
+        for (const e of entries) {
+          const row = [
+            csvEscape(e.word || ""),
+            csvEscape(e.translation || ""),
+            csvEscape(e.partOfSpeech || ""),
+            csvEscape(e.enDef || ""),
+            csvEscape(e.example || ""),
+            csvEscape(e.source || ""),
+            csvEscape(e.knownStatus || "unknown"),
+          ];
+          lines.push(row.join(","));
+        }
+        // 加上 UTF-8 BOM，避免 Excel 乱码
+        return "\uFEFF" + lines.join("\n");
+      }
+    })();
+  
+})();
+</script>
+<!-- ====== APP 1 JS ====== -->
+<script>
+(function() {
+
+    // --- 1. 数据库初始化 ---
+    // 保持 V14 名称以继承数据
+    const db = new Dexie("WordFactoryDB_V14");
+    db.version(1).stores({
+        words: 'headword, status'
+    });
+
+    // --- 全局状态 ---
+    let WORK_QUEUE = [];
+    let IS_RUNNING = false;
+    let IS_PAUSED = false;
+    let TOTAL_IN_QUEUE = 0;
+    let PROCESSED_COUNT = 0;
+
+    // --- UI 工具 ---
+    function log(msg, type = 'info') {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        if (type === 'error') div.className = 'log-err';
+        if (type === 'warn') div.className = 'log-warn';
+        if (type === 'success') div.className = 'log-success';
+        const logBox = document.getElementById('log');
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function updateStatus(status) {
+        const el = document.getElementById('statusIndicator');
+        el.textContent = status;
+        
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+
+        if (status === '运行中') {
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-block';
+            resumeBtn.style.display = 'none';
+        } else if (status === '已暂停') {
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'none';
+            resumeBtn.style.display = 'inline-block';
+        } else {
+            startBtn.style.display = 'inline-block';
+            pauseBtn.style.display = 'none';
+            resumeBtn.style.display = 'none';
+            startBtn.disabled = false;
+        }
+    }
+
+    async function refreshStats() {
+        try {
+            const total = await db.words.count();
+            // 只要有同义词就算大概率完成了
+            const done = await db.words
+                .filter(w => w.synonyms && w.synonyms.length > 1)
+                .count();
+
+            const pending = WORK_QUEUE.length;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statDone').textContent = done;
+            document.getElementById('statPending').textContent = pending;
+            document.getElementById('dbStatus').textContent = "✅ IndexedDB";
+        } catch (e) {
+            document.getElementById('dbStatus').textContent = "❌ DB Error";
+        }
+    }
+
+    refreshStats();
+
+    // --- 2. 导入逻辑 (无变化) ---
+    function handleImport() {
+        const file = document.getElementById('csvFile').files[0];
+        if (!file) return log("请先选择 CSV 文件", "error");
+
+        log("正在解析 CSV...");
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: async function (results) {
+                const rows = results.data;
+                log(`读取 ${rows.length} 行，正在写入数据库...`);
+
+                try {
+                    await db.transaction('rw', db.words, async () => {
+                        for (let row of rows) {
+                            const word = (row['word'] || row['单词'] || row['headword'] || "").trim();
+                            if (!word) continue;
+
+                            const existing = await db.words.get(word);
+
+                            const newData = {
+                                headword: word,
+                                context_sentence: row['example'] || row['context_sentence'] || row['context'] || row['上下文'] || existing?.context_sentence || "",
+                                source: row['page_title'] || row['source_title'] || row['source'] || row['来源'] || existing?.source || "",
+                                user_definition: row['translation'] || row['翻译'] || row['user_definition'] || row['meaning'] || existing?.user_definition || "",
+                                phonetic: row['phonetic'] || existing?.phonetic || "",
+                                root: row['root'] || existing?.root || "",
+                                root_meaning: row['root_meaning'] || existing?.root_meaning || "",
+                                antonyms: row['antonyms'] || existing?.antonyms || "",
+                                scene_words: row['scene_words'] || existing?.scene_words || "",
+                                synonyms: row['synonyms'] || existing?.synonyms || "",
+                                image_base64: row['image_base64'] || existing?.image_base64 || "",
+                                partOfSpeech: row['partOfSpeech'] || existing?.partOfSpeech || "",
+                                enDef: row['enDef'] || existing?.enDef || "",
+                                knownStatus: row['knownStatus'] || existing?.knownStatus || "",
+                                tags: existing?.tags || "imported",
+                                status: existing?.status || "idle",
+                                updated_at: new Date().toISOString()
+                            };
+
+                            await db.words.put(newData);
+                        }
+                    });
+
+                    log(`✅ 成功导入 ${rows.length} 条数据！`, "success");
+                    refreshStats();
+                } catch (e) {
+                    log(`❌ 数据库错误: ${e.message}`, "error");
+                }
+            }
+        });
+    }
+
+    // --- 3. 队列管理 ---
+    async function startQueue() {
+        if (IS_RUNNING) return;
+        const key = document.getElementById('apiKey').value.trim();
+        if (!key) return log("❌ 请输入 Gemini API Key", "error");
+
+        const mode = document.getElementById('processMode').value;
+        log(`正在筛选任务 (模式: ${mode})...`);
+
+        const allWords = await db.words.toArray();
+        let tasks = [];
+
+        if (mode === 'new_only') {
+            tasks = allWords.filter(w => (!w.synonyms || w.synonyms.length < 2) || w.status === 'error');
+        } else if (mode === 'enrich_all') {
+            tasks = allWords;
+        } else if (mode === 'retry_error') {
+            tasks = allWords.filter(w => w.status === 'error');
+        }
+
+        if (tasks.length === 0) {
+            return log("⚠️ 队列为空：没有需要处理的单词。", "warn");
+        }
+
+        WORK_QUEUE = tasks.slice(); // 复制队列
+        TOTAL_IN_QUEUE = tasks.length;
+        PROCESSED_COUNT = 0;
+        
+        IS_RUNNING = true;
+        IS_PAUSED = false;
+        updateStatus('运行中');
+        
+        log(`🚀 开始处理，共 ${TOTAL_IN_QUEUE} 个任务。`);
+        runConcurrencyPool();
+    }
+
+    function pauseQueue() {
+        if (!IS_RUNNING) return;
+        IS_PAUSED = true;
+        IS_RUNNING = false;
+        updateStatus('已暂停');
+        log("⏸ 请求暂停... 当前任务完成后将停止。", "warn");
+    }
+
+    function resumeQueue() {
+        if (!IS_PAUSED) return;
+        IS_PAUSED = false;
+        IS_RUNNING = true;
+        updateStatus('运行中');
+        log("▶️ 继续处理...");
+        runConcurrencyPool();
+    }
+
+    // --- 4. 并发池 (已恢复 Pexels 逻辑) ---
+    async function runConcurrencyPool() {
+        const limit = parseInt(document.getElementById('concurrency').value) || 1;
+        const pexelsKey = document.getElementById('pexelsKey').value.trim(); // 获取 Key
+        const pool = [];
+
+        const worker = async () => {
+            while (WORK_QUEUE.length > 0) {
+                if (IS_PAUSED) break;
+
+                const item = WORK_QUEUE.pop();
+                if (!item) break;
+
+                try {
+                    await db.words.update(item.headword, { status: 'processing' });
+                    PROCESSED_COUNT++;
+                    requestAnimationFrame(() => updateProgressUI(item.headword));
+
+                    // 1. Gemini 分析
+                    const geminiResult = await fetchGeminiRobust(item.headword, item.context_sentence);
+                    
+                    // 2. 🔴 Pexels 配图 (功能回归)
+                    let imgData = item.image_base64 || ""; 
+                    // 如果有 Key 且原图为空，则抓取
+                    if (pexelsKey && !imgData) {
+                        try {
+                            // 在这里加个小延迟防止 Pexels 也限流
+                            await new Promise(r => setTimeout(r, 500));
+                            const newImg = await fetchPexelsImage(item.headword, pexelsKey);
+                            if (newImg) {
+                                imgData = newImg;
+                                log(`🖼️ 抓取到图片: ${item.headword}`, 'success');
+                            }
+                        } catch (e) {
+                            log(`⚠️ Pexels 配图失败: ${item.headword}`, "warn");
+                        }
+                    }
+
+                    // 3. 存入数据库
+                    await db.words.update(item.headword, {
+                        phonetic: geminiResult.phonetic ?? item.phonetic ?? "",
+                        user_definition: geminiResult.user_definition ?? item.user_definition ?? "",
+                        root: geminiResult.root ?? item.root ?? "",
+                        root_meaning: geminiResult.root_meaning ?? item.root_meaning ?? "",
+                        context_sentence: geminiResult.context_sentence ?? item.context_sentence ?? "",
+                        synonyms: geminiResult.synonyms ?? item.synonyms ?? "",
+                        antonyms: geminiResult.antonyms ?? item.antonyms ?? "",
+                        scene_words: geminiResult.scene_words ?? item.scene_words ?? "",
+                        image_base64: imgData, // 🔴 图片存入
+                        status: 'done',
+                        updated_at: new Date().toISOString()
+                    });
+
+                    log(`✅ [OK] ${item.headword}`, "success");
+                } catch (err) {
+                    log(`❌ [Fail] ${item.headword}: ${err.message}`, "error");
+                    await db.words.update(item.headword, { status: 'error' });
+                }
+
+                if (PROCESSED_COUNT % 5 === 0) refreshStats();
+            }
+        };
+
+        for (let i = 0; i < limit; i++) {
+            pool.push(worker());
+        }
+
+        await Promise.all(pool);
+
+        if (WORK_QUEUE.length === 0 && !IS_PAUSED) {
+            IS_RUNNING = false;
+            updateStatus('已完成');
+            log("🎉 所有任务处理完毕！", "success");
+            updateProgressUI("完成");
+        } else if (IS_PAUSED) {
+            log("✋ 已暂停。剩余任务: " + WORK_QUEUE.length);
+        }
+    }
+
+    function updateProgressUI(wordMsg) {
+        const pct = TOTAL_IN_QUEUE > 0
+            ? Math.round((PROCESSED_COUNT / TOTAL_IN_QUEUE) * 100)
+            : 0;
+        document.getElementById('pFill').style.width = `${pct}%`;
+        document.getElementById('pText').textContent =
+            `进度: ${pct}% (${PROCESSED_COUNT}/${TOTAL_IN_QUEUE}) - ${wordMsg}`;
+    }
+
+    // --- 5. AI 核心 (V14 稳定版逻辑) ---
+    async function fetchGeminiRobust(word, context) {
+        const key = document.getElementById('apiKey').value.trim();
+        const model = document.getElementById('modelSelect').value;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+
+        const prompt = `
+        You are a lexicographer. Analyze the English word: "${word}".
+        Context: "${context || ''}"
+        Return ONLY a JSON object.
+        Format:
+        {
+          "phonetic": "IPA",
+          "user_definition": "Chinese meaning (concise)",
+          "root": "Etymology root",
+          "root_meaning": "Root meaning",
+          "context_sentence": "Example sentence",
+          "synonyms": "syn1, syn2, syn3",
+          "antonyms": "ant1, ant2",
+          "scene_words": "scene1, scene2"
+        }`;
+
+        for (let i = 0; i < 4; i++) {
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            temperature: model.includes("2.0") ? 0.15 : 0,
+                            maxOutputTokens: 2048,
+                            responseMimeType: "application/json"
+                        }
+                    })
+                });
+
+                if (res.status === 429) {
+                    log(`⏳ [${word}] 429 限流，冷却 5s...`, "warn");
+                    await new Promise(r => setTimeout(r, 5000));
+                    continue;
+                }
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                const data = await res.json();
+                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!rawText) throw new Error("Empty Response");
+
+                const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error("No JSON found");
+
+                return JSON.parse(jsonMatch[0]);
+            } catch (err) {
+                if (i === 3) throw err;
+                await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+            }
+        }
+    }
+
+    // --- 🔴 6. Pexels 图片功能 (完整回归) ---
+    async function fetchPexelsImage(word, apiKey) {
+        const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(word)}&per_page=1&orientation=landscape`;
+        
+        const res = await fetch(url, {
+            headers: { Authorization: apiKey }
+        });
+        
+        if (!res.ok) throw new Error(`Pexels HTTP ${res.status}`);
+        
+        const data = await res.json();
+        if (data.photos && data.photos.length > 0) {
+            const imgUrl = data.photos[0].src.medium;
+            return await toBase64(imgUrl);
+        }
+        return "";
+    }
+
+    async function toBase64(url) {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (e) {
+            console.error("Image convert failed", e);
+            return "";
+        }
+    }
+
+    // --- 7. 导出逻辑 (V14 防崩版) ---
+    async function exportData() {
+        const words = await db.words.toArray();
+        if (!words.length) return log("无数据可导出", "warn");
+
+        const csvData = words.map(w => ({
+            word: w.headword || "",
+            phonetic: w.phonetic || "",
+            meaning: w.user_definition || "",
+            root: w.root || "",
+            root_meaning: w.root_meaning || "",
+            example: w.context_sentence || "",
+            synonyms: w.synonyms || "",
+            antonyms: w.antonyms || "",
+            scene_words: w.scene_words || "",
+            partOfSpeech: w.partOfSpeech || "",
+            enDef: w.enDef || "",
+            knownStatus: w.knownStatus || "",
+            source: w.source || "",
+            image_base64: w.image_base64 || "", // 🔴 确保图片字段被导出
+            tags: w.tags || ""
+        }));
+
+        try {
+            const csv = Papa.unparse(csvData);
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Gemini_Dict_Safe_${Date.now()}.csv`;
+            link.click();
+            log("✅ CSV 导出成功！", "success");
+        } catch (e) {
+            log(`❌ 导出失败: ${e.message}`, "error");
+        }
+    }
+
+    async function clearDB() {
+        if (confirm("⚠️ 确定清空所有数据？")) {
+            await db.words.clear();
+            WORK_QUEUE = [];
+            TOTAL_IN_QUEUE = 0;
+            PROCESSED_COUNT = 0;
+            IS_RUNNING = false;
+            IS_PAUSED = false;
+            updateStatus('空闲');
+            
+            document.getElementById('pFill').style.width = '0%';
+            document.getElementById('pText').textContent = '准备就绪';
+            await refreshStats();
+            log("🔥 数据库已清空", "warn");
+        }
+    }
+
+})();
+</script>
+<!-- ====== APP 2 JS ====== -->
+<script>
+(function() {
+
+  const DB_NAME = 'WordMemDB_V45';
+  const STORE_WORDS = 'words';
+  const STORE_BOOKS = 'books';
+  let db = null;
+  let storageMode = 'indexedDB';
+
+  function lsKey(store){return DB_NAME+'__'+store;}
+  function lsLoad(store){
+    try{
+      const raw = localStorage.getItem(lsKey(store));
+      if(!raw) return [];
+      const data = JSON.parse(raw);
+      return Array.isArray(data)?data:[];
+    }catch(e){console.error('lsLoad error',e);return[];}
+  }
+  function lsSave(store,arr){
+    try{localStorage.setItem(lsKey(store),JSON.stringify(arr));}
+    catch(e){console.error('lsSave error',e);alert('localStorage 写入失败，可能超过容量限制');}
+  }
+
+  function openIDB(){
+    return new Promise((resolve,reject)=>{
+      if(!('indexedDB' in window)) return reject(new Error('no indexedDB'));
+      const req = indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded = e=>{
+        db = e.target.result;
+        if(!db.objectStoreNames.contains(STORE_WORDS)){
+          db.createObjectStore(STORE_WORDS,{keyPath:'word'});
+        }
+        if(!db.objectStoreNames.contains(STORE_BOOKS)){
+          db.createObjectStore(STORE_BOOKS,{keyPath:'id'});
+        }
+      };
+      req.onsuccess = e=>{db=e.target.result;resolve();};
+      req.onerror = e=>reject(e.target.error||new Error('open error'));
+    });
+  }
+
+  function getAll(store){
+    if(storageMode==='indexedDB'){
+      return new Promise((resolve,reject)=>{
+        const tx = db.transaction(store);
+        const req = tx.objectStore(store).getAll();
+        req.onsuccess = ()=>resolve(req.result);
+        req.onerror = e=>reject(e.target.error);
+      });
+    }else{
+      return Promise.resolve(lsLoad(store));
+    }
+  }
+
+  function put(store,data){
+    if(storageMode==='indexedDB'){
+      return new Promise((resolve,reject)=>{
+        const tx=db.transaction(store,'readwrite');
+        tx.objectStore(store).put(data);
+        tx.oncomplete=()=>resolve();
+        tx.onerror=e=>reject(e.target.error);
+      });
+    }else{
+      const arr=lsLoad(store);
+      if(store===STORE_WORDS){
+        const i=arr.findIndex(w=>w.word===data.word);
+        if(i>=0)arr[i]=data;else arr.push(data);
+      }else{
+        const i=arr.findIndex(b=>b.id===data.id);
+        if(i>=0)arr[i]=data;else arr.push(data);
+      }
+      lsSave(store,arr);
+      return Promise.resolve();
+    }
+  }
+
+  function clearStores(){
+    if(storageMode==='indexedDB'){
+      return new Promise((resolve,reject)=>{
+        const tx=db.transaction([STORE_WORDS,STORE_BOOKS],'readwrite');
+        tx.objectStore(STORE_WORDS).clear();
+        tx.objectStore(STORE_BOOKS).clear();
+        tx.oncomplete=()=>resolve();
+        tx.onerror=e=>reject(e.target.error);
+      });
+    }else{
+      localStorage.removeItem(lsKey(STORE_WORDS));
+      localStorage.removeItem(lsKey(STORE_BOOKS));
+      return Promise.resolve();
+    }
+  }
+
+  function escapeHtml(str){
+    if(str==null)return'';
+    return String(str)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  function formatTimeAgo(s){
+    if(!s)return'首次学习';
+    const t=new Date(s);
+    if(!t.getTime())return'首次学习';
+    const diff=Date.now()-t.getTime();
+    const sec=Math.floor(diff/1000);
+    if(sec<60)return'刚刚';
+    const min=Math.floor(sec/60);
+    if(min<60)return min+' 分钟前';
+    const h=Math.floor(min/60);
+    if(h<24)return h+' 小时前';
+    const d=Math.floor(h/24);
+    return d+' 天前';
+  }
+
+  function speakWord(word,times){
+    if(!('speechSynthesis' in window))return;
+    window.speechSynthesis.cancel();
+    times=times||1;
+    for(let i=0;i<times;i++){
+      const u=new SpeechSynthesisUtterance(word);
+      u.lang='en-US';
+      u.rate=0.9;
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  function normalizeWordForCompare(str){
+    return String(str||'')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/[^a-z]/g,'');
+  }
+
+  let words=[];
+  let books=[];
+  let session=[];
+  let idx=0;
+  let active=false;
+  let isProcessing=false;
+  let currentRecognizer=null;
+  let jumpState=null;
+  let previewWord=null;
+  let hideTimer=null;
+
+  const el={
+    total:document.getElementById('statTotal'),
+    unknown:document.getElementById('statUnknown'),
+    known:document.getElementById('statKnown'),
+    news:document.getElementById('statNew'),
+    books:document.getElementById('statBooks'),
+    bookList:document.getElementById('bookList'),
+    cardHolder:document.getElementById('cardHolder'),
+    sessionInfo:document.getElementById('sessionInfo'),
+    startBtn:document.getElementById('btnStart'),
+    dbStatus:document.getElementById('dbStatus'),
+    sizeInput:document.getElementById('sessionSize')
+  };
+
+  function refreshStats(){
+    const total=words.length;
+    const known=words.filter(w=>w.knownStatus==='known').length;
+    const unknown=words.filter(w=>w.knownStatus!=='known'&&(w.unknownExposures||[]).length>0).length;
+    el.total.textContent=total;
+    el.known.textContent=known;
+    el.unknown.textContent=unknown;
+    el.news.textContent=total-known-unknown;
+    el.books.textContent=books.length;
+
+    el.bookList.innerHTML='';
+    if(!books.length){
+      const li=document.createElement('li');
+      li.innerHTML='<span class="meta">暂无单词书，先导入 CSV 吧。</span>';
+      el.bookList.appendChild(li);
+      return;
+    }
+    const sorted=books.slice().sort((a,b)=>(b.uploadedAt||'').localeCompare(a.uploadedAt||''));
+    sorted.forEach(b=>{
+      const li=document.createElement('li');
+      const cnt=b.wordCount!=null?b.wordCount:words.filter(w=>w.sourceBookId===b.id).length;
+      li.innerHTML=
+        '<div class="title">📚 '+escapeHtml(b.name||'未命名')+'</div>'+
+        '<div class="meta">单词数：'+cnt+' · 创建：'+(b.uploadedAt?new Date(b.uploadedAt).toLocaleString():'-')+'</div>';
+      el.bookList.appendChild(li);
+    });
+  }
+
+  function randomSample(arr,n){
+    if(!Array.isArray(arr)||n<=0)return[];
+    if(n>=arr.length)return arr.slice();
+    const copy=arr.slice();
+    for(let i=copy.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      const tmp=copy[i];copy[i]=copy[j];copy[j]=tmp;
+    }
+    return copy.slice(0,n);
+  }
+
+  function startSession(){
+    if(!words.length){alert('词库为空，请先导入 CSV');return;}
+    let size=parseInt(el.sizeInput.value,10)||20;
+    if(size<1)size=1;if(size>200)size=200;
+
+    const known=words.filter(w=>w.knownStatus==='known');
+    const review=words.filter(w=>w.knownStatus!=='known'&&(w.unknownExposures||[]).length>0);
+    const fresh=words.filter(w=>w.knownStatus!=='known'&&(!(w.unknownExposures)||!(w.unknownExposures||[]).length));
+
+    let k=Math.ceil(size*0.2);
+    let r=Math.ceil(size*0.4);
+    let n=size-k-r;
+
+    if(known.length<k){r+=k-known.length;k=known.length;}
+    if(review.length<r){n+=r-review.length;r=review.length;}
+    if(fresh.length<n){r+=n-fresh.length;n=fresh.length;}
+
+    const now=Date.now();
+    review.sort((a,b)=>{
+      const la=Date.parse(a.lastShownAt||'')||0;
+      const lb=Date.parse(b.lastShownAt||'')||0;
+      const da=Math.max(1,(now-la)/86400000);
+      const db=Math.max(1,(now-lb)/86400000);
+      const sa=(a.unknownExposures||[]).length*da;
+      const sb=(b.unknownExposures||[]).length*db;
+      return sb-sa;
+    });
+
+    const chosenReview=review.slice(0,r);
+    const chosenFresh=randomSample(fresh,n);
+    const chosenKnown=randomSample(known,k);
+
+    session=[...chosenReview,...chosenFresh,...chosenKnown]
+      .sort(()=>Math.random()-0.5);
+
+    idx=0;
+    active=session.length>0;
+    jumpState=null;
+    previewWord=null;
+    el.sessionInfo.textContent='本轮 '+session.length+' 个单词';
+    renderCard();
+  }
+
+  function clearHideTimer(){
+    if(hideTimer){clearTimeout(hideTimer);hideTimer=null;}
+  }
+
+  async function updateWord(oldObj,patch){
+    const updated=Object.assign({},oldObj,patch);
+    await put(STORE_WORDS,updated);
+    const i=words.findIndex(w=>w.word===oldObj.word);
+    if(i>=0)words[i]=updated;
+    const j=session.findIndex(w=>w.word===oldObj.word);
+    if(j>=0)session[j]=updated;
+    return updated;
+  }
+
+  function renderCard(){
+    clearHideTimer();
+    if(!active||!session.length||idx>=session.length){
+      active=false;jumpState=null;previewWord=null;
+      el.sessionInfo.textContent='本轮已结束，点击“开始背单词”再来一轮。';
+      el.cardHolder.innerHTML='<div style="font-size:13px;color:#6b7280;padding:10px">本轮结束 🎉</div>';
+      return;
+    }
+    const base=session[idx];
+    const w=previewWord||base;
+    const exposures=(w.unknownExposures||[]).length;
+    const timeStr=formatTimeAgo(w.lastShownAt);
+
+    const phonetic=w.phonetic?'<div class="phonetic">/'+escapeHtml(w.phonetic)+'/</div>':'';
+    const cn=w.meaning?escapeHtml(w.meaning):'<span style="font-size:13px;color:#9ca3af">暂无中文释义</span>';
+    const enDef=w.enDef?'<div class="meaning-en">'+escapeHtml(w.enDef)+'</div>':'';
+
+    const img=w.image_base64
+      ?'<div style="margin-top:6px"><img style="max-width:140px;border-radius:12px;box-shadow:0 4px 10px rgba(15,23,42,.18)" src="'+w.image_base64+'" /></div>'
+      :'';
+
+    el.cardHolder.innerHTML =
+      '<div class="word-card">'+
+        '<div class="card-header">'+
+          '<div>第 '+(idx+1)+' / '+session.length+'</div>'+
+          '<div class="badge-row">'+
+            '<span class="badge badge-wrong">错 '+exposures+' 次</span>'+
+            '<span class="badge badge-time">'+timeStr+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="card-main">'+
+          '<div class="col-word">'+
+            '<div class="spelling">'+escapeHtml(w.word)+'</div>'+
+            phonetic+
+            '<div id="meaningBlock" style="display:none">'+
+              '<div class="meaning-cn">'+cn+'</div>'+
+              enDef+
+            '</div>'+
+            img+
+          '</div>'+
+          '<div class="col-extra">'+
+            '<div class="card-actions">'+
+              '<button id="btnAssoc">想：联想&词根 (1)</button>'+
+              '<button id="btnScene">场：例句&场景 (2)</button>'+
+              '<button id="btnSpell">拼：拼写测试 (3)</button>'+
+              '<button id="btnRecite" class="btn-purple">读：麦克风跟读 (4)</button>'+
+            '</div>'+
+            '<div id="interactionPanel" class="panel-interact">'+
+              '<span style="font-size:13px;color:#9ca3af">先看英文，自己想中文；按空格显示释义 10 秒。</span>'+
+            '</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="yesno">'+
+          '<button id="btnKnown" class="btn-yes">✅ 认识 (←)</button>'+
+          '<button id="btnUnknown" class="btn-no">❌ 不认识 (→)</button>'+
+        '</div>'+
+      '</div>';
+
+    el.sessionInfo.textContent='本轮 '+session.length+' 个单词 · 当前第 '+(idx+1)+' 个';
+
+    const panel=document.getElementById('interactionPanel');
+    document.getElementById('btnAssoc').onclick=e=>{e.currentTarget.blur();showAssociation(w,panel);};
+    document.getElementById('btnScene').onclick=e=>{e.currentTarget.blur();showScene(w,panel);};
+    document.getElementById('btnSpell').onclick=e=>{e.currentTarget.blur();showSpellPanel(w,panel);};
+    document.getElementById('btnRecite').onclick=e=>{e.currentTarget.blur();startPronounceTest(w,panel);};
+    document.getElementById('btnKnown').onclick=e=>{e.currentTarget.blur();handleKnown();};
+    document.getElementById('btnUnknown').onclick=e=>{e.currentTarget.blur();handleUnknown();};
+
+    speakWord(w.word,1);
+    updateWord(w,{lastShownAt:new Date().toISOString()}).then(()=>{});
+  }
+
+  function openMacDictionary(word){
+    if(!word) return;
+    try{
+      const url = 'dict://' + encodeURIComponent((word||'').trim());
+      window.location.href = url;
+    }catch(e){
+      console.error('openMacDictionary error', e);
+    }
+  }
+
+  function attachLinks(panel,w,wordsArr){
+    const links = panel.querySelectorAll('.clickable-word');
+    links.forEach(link=>{
+      // 左键：保持原有行为 —— 跳转到该词的单词卡
+      link.onclick = ()=>{
+        const txt = link.getAttribute('data-word') || link.textContent;
+        jumpToLinkedWord(txt, w);
+      };
+      // 右键：在 macOS 系统词典中查询该词
+      link.oncontextmenu = (ev)=>{
+        ev.preventDefault();
+        const txt = link.getAttribute('data-word') || link.textContent;
+        openMacDictionary(txt);
+      };
+    });
+  }
+
+  function showAssociation(w,panel){
+    clearHideTimer();
+    const syn=(w.synonyms||[]).length
+      ?(w.synonyms||[]).map(s=>'<span class="clickable-word" data-word="'+escapeHtml(s)+'">'+escapeHtml(s)+'</span>').join(' ')
+      :'<span style="color:#9ca3af">暂无同义词</span>';
+    const ant=(w.antonyms||[]).length
+      ?(w.antonyms||[]).map(s=>'<span class="clickable-word" data-word="'+escapeHtml(s)+'">'+escapeHtml(s)+'</span>').join(' ')
+      :'<span style="color:#9ca3af">暂无反义词</span>';
+    const root=(w.root||w.root_meaning)
+      ?'<div><strong>词根：</strong>'+escapeHtml(w.root||'')+' '+escapeHtml(w.root_meaning||'')+'</div>'
+      :'';
+    panel.innerHTML =
+      '<div><strong>中文释义：</strong>'+escapeHtml(w.meaning||'暂无')+'</div>'+
+      root+
+      '<div style="margin-top:4px"><strong>同义词：</strong>'+syn+'</div>'+
+      '<div style="margin-top:4px"><strong>反义词：</strong>'+ant+'</div>';
+    attachLinks(panel,w,words);
+  }
+
+  function showScene(w,panel){
+    clearHideTimer();
+    const example=w.example||'暂无例句';
+    let scenes=Array.isArray(w.scenes)?w.scenes.slice():[];
+    scenes=scenes.filter(s=>s&&s.trim()&&s.toLowerCase()!==(w.word||'').toLowerCase());
+    if(!scenes.length&&(w.synonyms||[]).length){
+      scenes=w.synonyms.slice(0,3);
+    }
+    const sceneHtml=scenes.length
+      ?scenes.map(s=>'<span class="clickable-word" data-word="'+escapeHtml(s)+'">'+escapeHtml(s)+'</span>').join(' ')
+      :'<span style="color:#9ca3af">暂无场景词</span>';
+    panel.innerHTML =
+      '<div><strong>例句：</strong></div>'+
+      '<div style="margin:4px 0 8px">'+escapeHtml(example)+'</div>'+
+      '<div><strong>场景搭配：</strong>'+sceneHtml+'</div>';
+    attachLinks(panel,w,words);
+  }
+
+  function showSpellPanel(w,panel){
+    clearHideTimer();
+    panel.innerHTML =
+      '<div style="margin-bottom:4px"><strong>拼写测试：</strong>输入你记得的拼写，然后按 Enter 或“检查”。</div>'+
+      '<input id="spellInput" type="text" style="width:100%;padding:6px 8px;border-radius:8px;border:1px solid #cbd5e1;margin-bottom:6px" autocomplete="off" />'+
+      '<button id="btnCheckSpell" class="btn-mini">检查</button>'+
+      '<div id="spellFeedback" style="font-size:13px;color:#6b7280;margin-top:6px"></div>';
+    const input=document.getElementById('spellInput');
+    const btn=document.getElementById('btnCheckSpell');
+    const fb=document.getElementById('spellFeedback');
+    function check(){
+      const val=input.value.trim();
+      if(!val)return;
+      const ok=normalizeWordForCompare(val)===normalizeWordForCompare(w.word);
+      fb.innerHTML=ok
+        ?'<span style="color:#16a34a">✅ 拼写正确！'+escapeHtml(w.word)+'</span>'
+        :'<span style="color:#b91c1c">❌ 拼写错误，正确拼写：'+escapeHtml(w.word)+'</span>';
+    }
+    btn.onclick=()=>{btn.blur();check();};
+    input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();check();}};
+    input.focus();
+  }
+
+  function startPronounceTest(w,panel){
+    clearHideTimer();
+    if(currentRecognizer){try{currentRecognizer.stop();}catch(e){}currentRecognizer=null;}
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){
+      panel.innerHTML='<span style="color:#b91c1c">当前浏览器不支持语音识别，请使用桌面版 Chrome。</span>';
+      return;
+    }
+    panel.innerHTML =
+      '<div><strong>跟读测试：</strong>请对着麦克风读出这个单词：</div>'+
+      '<div style="font-size:20px;font-weight:700;margin:4px 0 6px">'+escapeHtml(w.word)+'</div>'+
+      '<div id="reciteStatus" style="font-size:13px;color:#6b7280">正在启动麦克风，请开始朗读...</div>';
+    const statusEl=document.getElementById('reciteStatus');
+    const rec=new SR();
+    currentRecognizer=rec;
+    rec.lang='en-US';
+    rec.interimResults=false;
+    rec.maxAlternatives=1;
+    rec.onresult=evt=>{
+      const text=evt.results[0][0].transcript||'';
+      const ok=normalizeWordForCompare(text)===normalizeWordForCompare(w.word);
+      statusEl.innerHTML=ok
+        ?'<span style="color:#16a34a">✅ 识别为：'+escapeHtml(text)+'，很好！</span>'
+        :'<span style="color:#b91c1c">❌ 识别为：'+escapeHtml(text)+'，目标单词：'+escapeHtml(w.word)+'</span>';
+      currentRecognizer=null;
+    };
+    rec.onerror=evt=>{
+      statusEl.innerHTML='<span style="color:#b91c1c">语音识别出错：'+escapeHtml(evt.error||'未知错误')+'</span>';
+      currentRecognizer=null;
+    };
+    rec.onend=()=>{if(currentRecognizer===rec)currentRecognizer=null;};
+    try{rec.start();}catch(e){
+      statusEl.innerHTML='<span style="color:#b91c1c">无法启动语音识别：'+escapeHtml(e.message||String(e))+'</span>';
+      currentRecognizer=null;
+    }
+  }
+
+  function revealTemporarily(){
+    if(!active||!session.length||idx>=session.length)return;
+    const w=previewWord||session[idx];
+    const panel=document.getElementById('interactionPanel');
+    if(!panel)return;
+    showAssociation(w,panel);
+    const block=document.getElementById('meaningBlock');
+    if(block)block.style.display='block';
+    clearHideTimer();
+    hideTimer=setTimeout(()=>{
+      const p=document.getElementById('interactionPanel');
+      if(p)p.innerHTML='<span style="font-size:13px;color:#9ca3af">释义已隐藏，再按空格可重新查看 10 秒。</span>';
+      const b=document.getElementById('meaningBlock');
+      if(b)b.style.display='none';
+      hideTimer=null;
+    },10000);
+  }
+
+  async function handleKnown(){
+    if(!active||!session.length||idx>=session.length)return;
+    if(isProcessing)return;
+    isProcessing=true;
+    try{
+      const base=session[idx];
+      const w=previewWord||base;
+      const upd=await updateWord(w,{knownStatus:'known',lastShownAt:new Date().toISOString()});
+      session[idx]=upd;
+      refreshStats();
+    }finally{isProcessing=false;}
+  }
+
+  async function handleUnknown(){
+    if(!active||!session.length||idx>=session.length)return;
+    if(isProcessing)return;
+    isProcessing=true;
+    try{
+      const base=session[idx];
+      const w=previewWord||base;
+      const exposures=(w.unknownExposures||[]).slice();
+      exposures.push(new Date().toISOString());
+      const upd=await updateWord(w,{
+        knownStatus:'unknown',
+        unknownExposures:exposures,
+        lastShownAt:new Date().toISOString()
+      });
+      session[idx]=upd;
+      refreshStats();
+    }finally{isProcessing=false;}
+  }
+
+  async function jumpToLinkedWord(text,parent){
+    const raw=(text||'').trim();
+    if(!raw)return;
+    const normTarget=normalizeWordForCompare(raw);
+    if(!normTarget){speakWord(raw,1);return;}
+    let target=words.find(w=>normalizeWordForCompare(w.word)===normTarget);
+    if(!target){
+      const base=parent||session[idx]||null;
+      const newWord={
+        word:raw.toLowerCase(),
+        text:raw,
+        knownStatus:'unknown',
+        unknownExposures:[],
+        sourceBookId:base?base.sourceBookId:null,
+        phonetic:'',
+        meaning:'',
+        enDef:'',
+        example:'',
+        root:'',
+        root_meaning:'',
+        synonyms:[],
+        antonyms:[],
+        scenes:[],
+        partOfSpeech:'',
+        image_base64:'',
+        lastShownAt:null
+      };
+      try{
+        await put(STORE_WORDS,newWord);
+        words.push(newWord);
+        refreshStats();
+        target=newWord;
+      }catch(e){
+        console.error('save linked word fail',e);
+        speakWord(raw,1);
+        return;
+      }
+    }
+    if(!jumpState){
+      const fromIndex=idx;
+      const fromNextIndex=(idx<session.length-1)?idx+1:idx;
+      jumpState={fromIndex,fromNextIndex};
+    }
+    previewWord=target;
+    renderCard();
+  }
+
+  document.addEventListener('keydown',e=>{
+    if(!active||!session.length)return;
+    const tag=e.target.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA')return;
+    switch(e.code){
+      case'ArrowUp':
+        e.preventDefault();
+        if(isProcessing)return;
+        if(jumpState){
+          previewWord=null;
+          idx=jumpState.fromIndex;
+          jumpState=null;
+          renderCard();
+        }else if(idx>0){
+          idx--;renderCard();
+        }
+        break;
+      case'ArrowDown':
+        e.preventDefault();
+        if(isProcessing)return;
+        if(jumpState){
+          previewWord=null;
+          idx=jumpState.fromNextIndex;
+          jumpState=null;
+          renderCard();
+        }else if(idx<session.length-1){
+          idx++;renderCard();
+        }
+        break;
+      case'ArrowLeft':
+        e.preventDefault();handleKnown();break;
+      case'ArrowRight':
+        e.preventDefault();handleUnknown();break;
+      case'Digit1':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)showAssociation(w,p);
+        break;
+      }
+      case'Digit2':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)showScene(w,p);
+        break;
+      }
+      case'Digit3':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)showSpellPanel(w,p);
+        break;
+      }
+      case'Digit4':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        const p=document.getElementById('interactionPanel');
+        if(p)startPronounceTest(w,p);
+        break;
+      }
+      case'Space':{
+        e.preventDefault();
+        const w=previewWord||session[idx];
+        speakWord(w.word,3);
+        revealTemporarily();
+        break;
+      }
+    }
+  });
+
+  function escapeCsvValue(val){
+    if(val==null)val='';
+    let s=String(val);
+    if(/[",\n]/.test(s)){
+      s=s.replace(/"/g,'""');
+      return'"'+s+'"';
+    }
+    return s;
+  }
+
+  function exportCsv(type){
+    if(!words.length){alert('当前数据库无单词');return;}
+    let list;
+    if(type==='known')list=words.filter(w=>w.knownStatus==='known');
+    else if(type==='unknown')list=words.filter(w=>w.knownStatus!=='known'&&(w.unknownExposures||[]).length>0);
+    else list=words.slice();
+    if(!list.length){alert('符合条件的单词为空');return;}
+
+    const headers=[
+      'word','phonetic','meaning','enDef','example',
+      'root','root_meaning','synonyms','antonyms','scene_words',
+      'partOfSpeech','knownStatus','unknownCount','lastShownAt','sourceBookId','image_base64'
+    ];
+    const rows=list.map(w=>({
+      word:w.word||'',
+      phonetic:w.phonetic||'',
+      meaning:w.meaning||'',
+      enDef:w.enDef||'',
+      example:w.example||'',
+      root:w.root||'',
+      root_meaning:w.root_meaning||'',
+      synonyms:(w.synonyms||[]).join('|'),
+      antonyms:(w.antonyms||[]).join('|'),
+      scene_words:(w.scenes||[]).join('|'),
+      partOfSpeech:w.partOfSpeech||'',
+      knownStatus:w.knownStatus||'',
+      unknownCount:(w.unknownExposures||[]).length,
+      lastShownAt:w.lastShownAt||'',
+      sourceBookId:w.sourceBookId||'',
+      image_base64:w.image_base64||''
+    }));
+    function toRow(obj){
+      return headers.map(h=>escapeCsvValue(obj[h])).join(',');
+    }
+    let csv=headers.join(',')+'\n';
+    csv+=rows.map(toRow).join('\n');
+
+    const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    const ts=new Date().toISOString().slice(0,10);
+    a.download='wordbook_'+type+'_'+ts+'.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  function setupImport(btnId,inputId,forcedStatus){
+    const btn=document.getElementById(btnId);
+    const input=document.getElementById(inputId);
+    btn.onclick=()=>{input.value='';input.click();};
+    input.onchange=e=>{
+      if(e.target.files&&e.target.files[0])importCsv(e.target.files[0],forcedStatus);
+    };
+  }
+
+  async function importCsv(file,forcedStatus){
+    const text=await file.text();
+    const lines=text.replace(/\r/g,'').trim().split('\n');
+    if(lines.length<=1){alert('CSV 内容为空');return;}
+    const headerLine=lines[0].toLowerCase().replace(/"/g,'');
+    const header=headerLine.split(',').map(h=>h.trim());
+    function col(name){
+      return header.findIndex(h=>h.indexOf(name)!==-1||name.indexOf(h)!==-1);
+    }
+    const wCol=col('word');
+    if(wCol===-1){alert('找不到 word 列');return;}
+
+    const bookId=Date.now();
+    const entries=[];
+    for(let i=1;i<lines.length;i++){
+      if(!lines[i].trim())continue;
+      let cur='';let inQ=false;const fixed=[];
+      const line=lines[i]+',';
+      for(let ch of line){
+        if(ch==='"'){inQ=!inQ;}
+        else if(ch===','&&!inQ){fixed.push(cur);cur='';}
+        else{cur+=ch;}
+      }
+      const row=fixed.map(s=>s.replace(/^"|"$/g,'').replace(/""/g,'"').trim());
+      const word=(row[wCol]||'').toLowerCase();
+      if(!word)continue;
+
+      function getCol(key){const idx=col(key);return idx===-1?'':row[idx]||'';}
+
+      // 读取可能存在的记忆状态字段（兼容旧版：没有这些列时会返回空字符串）
+      const csvKnownStatus = (getCol('knownstatus') || '').toLowerCase();
+      const csvUnknownCountStr = getCol('unknowncount');
+      const csvLastShown = getCol('lastshownat') || '';
+
+      // 1）确定最终的 knownStatus：优先 forcedStatus，其次 CSV 里的值，最后默认为 unknown
+      let finalStatus = 'unknown';
+      if (forcedStatus) {
+        finalStatus = forcedStatus;
+      } else if (csvKnownStatus === 'known' || csvKnownStatus === 'unknown') {
+        finalStatus = csvKnownStatus;
+      }
+
+      // 2）还原错误次数 unknownExposures：只保留「次数」，具体时间对当前算法并不重要
+      let unknownCount = parseInt(csvUnknownCountStr, 10);
+      if (!Number.isFinite(unknownCount) || unknownCount < 0) unknownCount = 0;
+      let reconstructedExposures = [];
+      if (finalStatus !== 'known' && unknownCount > 0) {
+        const ts = csvLastShown || '';
+        for (let k = 0; k < unknownCount; k++) {
+          reconstructedExposures.push(ts);
+        }
+      }
+
+      const entry={
+        word:word,
+        text:word,
+        knownStatus:finalStatus,
+        unknownExposures:reconstructedExposures,
+        sourceBookId:bookId,
+        phonetic:getCol('phonetic')||getCol('音标'),
+        meaning:getCol('meaning')||getCol('中文')||getCol('释义'),
+        enDef:getCol('endef')||getCol('english'),
+        example:getCol('example')||getCol('例句'),
+        root:getCol('root'),
+        root_meaning:getCol('root_meaning'),
+        synonyms:(getCol('synonyms')||'').split(/[\|,，]/).map(s=>s.trim()).filter(Boolean),
+        antonyms:(getCol('antonyms')||'').split(/[\|,，]/).map(s=>s.trim()).filter(Boolean),
+        scenes:(getCol('scene_words')||getCol('scenes')||'').split(/[\|,，]/).map(s=>s.trim()).filter(Boolean),
+        partOfSpeech:getCol('pos')||getCol('partofspeech')||getCol('wordtype'),
+        image_base64:getCol('image_base64'),
+        lastShownAt:csvLastShown || null
+      };
+      entries.push(entry);
+    }
+
+    const book={
+      id:bookId,
+      name:file.name.replace(/\.csv.*$/,''),
+      uploadedAt:new Date().toISOString(),
+      wordCount:entries.length
+    };
+
+    if(storageMode==='indexedDB'){
+      await new Promise((resolve,reject)=>{
+        const tx=db.transaction([STORE_WORDS,STORE_BOOKS],'readwrite');
+        const ws=tx.objectStore(STORE_WORDS);
+        const bs=tx.objectStore(STORE_BOOKS);
+        entries.forEach(e=>ws.put(e));
+        if(entries.length)bs.put(book);
+        tx.oncomplete=()=>resolve();
+        tx.onerror=e=>reject(e.target.error);
+      });
+    }else{
+      const ws=lsLoad(STORE_WORDS);
+      entries.forEach(e=>{
+        const i=ws.findIndex(w=>w.word===e.word);
+        if(i>=0)ws[i]=e;else ws.push(e);
+      });
+      lsSave(STORE_WORDS,ws);
+      if(entries.length){
+        const bs=lsLoad(STORE_BOOKS);
+        bs.push(book);
+        lsSave(STORE_BOOKS,bs);
+      }
+    }
+
+    words=await getAll(STORE_WORDS);
+    books=await getAll(STORE_BOOKS);
+    refreshStats();
+    alert('导入成功，共 '+entries.length+' 个单词');
+  }
+
+  document.getElementById('btnStart').onclick=startSession;
+  document.getElementById('btnExportAll').onclick=()=>exportCsv('all');
+  document.getElementById('btnExportKnown').onclick=()=>exportCsv('known');
+  document.getElementById('btnExportUnknown').onclick=()=>exportCsv('unknown');
+  document.getElementById('btnClearDB').onclick=async()=>{
+    if(!confirm('确定要清空所有数据？此操作不可恢复。'))return;
+    await clearStores();
+    words=[];books=[];session=[];idx=0;active=false;jumpState=null;previewWord=null;
+    el.cardHolder.innerHTML='';el.sessionInfo.textContent='';
+    refreshStats();
+    alert('数据库已清空');
+  };
+
+  setupImport('btnImportAll','csvAllInput',null);
+  setupImport('btnImportKnown','csvKnownInput','known');
+  setupImport('btnImportUnknown','csvUnknownInput','unknown');
+
+  window.addEventListener('load',async()=>{
+    try{
+      await openIDB();
+      storageMode='indexedDB';
+      el.dbStatus.textContent='数据库就绪：IndexedDB 模式（推荐）';
+    }catch(e){
+      console.warn('IndexedDB 失败，使用 localStorage',e);
+      storageMode='localStorage';
+      el.dbStatus.textContent='⚠️ IndexedDB 不可用，已回退到 localStorage（容量有限）';
+    }
+    words=await getAll(STORE_WORDS);
+    books=await getAll(STORE_BOOKS);
+    refreshStats();
+    el.startBtn.disabled=false;
+  });
+
+})();
+</script>
+</body>
+</html>
