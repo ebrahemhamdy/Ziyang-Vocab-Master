@@ -1,83 +1,83 @@
-# 🎓 Ziyang Vocab Master (公益开源版) ✨
+# 🎓 Ziyang Vocab Master (Public Welfare Edition) ✨
 
 **Author:** Ziyang Xu 👨‍🎓
 **Grade:** 10th Grade (High School Affiliated to Beijing Normal University - BNU) 🏫
 **License:** Open Source & 100% Free (Public Welfare Software) 💖
 
-> *"把你的课本和阅读材料，一键转化为 AI 智能驱动的个人专属词库！"* 🚀
-> *"Convert your textbooks and reading materials into an AI-powered, personal vocabulary database!"*
+> *"Convert your textbooks and reading materials into an AI-powered, personal vocabulary database!"* 🚀
+> *(把你的课本和阅读材料，一键转化为 AI 智能驱动的个人专属词库！)*
 
 ---
 
-## 🌐 语言 (Languages)
+## 🌐 Languages
 
 🇬🇧 English
 🇨🇳 Chinese 中文
-🇰🇷 한국어 (即将推出 / Coming Soon)
-🇺🇦 Українська (即将推出 / Coming Soon)
-🇷🇺 Русский (即将推出 / Coming Soon)
-🇯🇵 日本語 (即将推出 / Coming Soon)
-🇪🇸 Español (即将推出 / Coming Soon)
+🇰🇷 한국어 (Coming Soon)
+🇺🇦 Українська (Coming Soon)
+🇷🇺 Русский (Coming Soon)
+🇯🇵 日本語 (Coming Soon)
+🇪🇸 Español (Coming Soon)
 
 ---
 
-## 🤔 为什么要做这个？ (The Problem)
+## 🤔 The Problem (Why I built this)
 
-Hi 大家好！作为一个每天都在和英语死磕的高中生，我发现市面上的背单词 App 都有一个**超级大痛点**：
+Hi everyone! As a high school student struggling with English vocabulary every day, I realized that existing apps have a **huge pain point**:
 
-**它们总是逼着我们去背“它们规定好的词库”！** 😩
+**They force you to study "their pre-defined word lists"!** 😩
 
-但在真实的学习里，我们看的是特定的原版书、学的是老师发的讲义、刷的是真题卷（比如 GRE、SAT）。我们明明有自己真正需要背的单词，但想把这些生词导进那些 App 里，要么根本做不到，要么步骤极其繁琐，要么还要**充钱变 VIP**！💸
+In real life, we study from specific textbooks, handouts from teachers, or past exam papers (like GRE, SAT). We have our own lists of words we actually need to master. But trying to import these words into mainstream apps is either impossible, incredibly tedious, or requires a **VIP subscription**! 💸
 
-所以我自己动手写了这个软件 —— **Ziyang Vocab Master**！
+That's why I built **Ziyang Vocab Master**! 
 
-这是一款**完全免费、纯公益性质、开源**的软件，没有任何商业目的。它的唯一目标，就是帮助像我一样的学生党，轻轻松松把任何 PDF 讲义变成自带例句、发音和配图的“超级 AI 单词本”！💪
-
----
-
-## 🚀 酷炫功能 (Cool Features)
-
-这个软件是一个**全能型 (All-in-One)** 的网页应用，所有操作都在你自己的电脑浏览器里离线完成，**绝对保护隐私**！它主要分三步走：
-
-### 📄 1. PDF 词库提取器 (PDF Vocabulary Extractor)
-告别手打！把你的讲义或者试卷（比如 GRE 24套）的 PDF 丢进去：
-- 🤖 自动扫描并提取出里面出现的所有生词！
-- 🧹 智能过滤掉 "the, and, is" 这种没有意义的废话。
-- 📥 导出一份干净清爽的专属 CSV 单词表。
-
-### 🤖 2. AI 单词加工厂 (AI Word Factory)
-拿到单词表后，直接丢给 AI 帮你查字典！
-- ✨ **Gemini API 魔法：** 自动补充音标 (IPA)、精准中文释义、词根词源、同义词、反义词，连**场景搭配和例句**都能一秒搞定！
-- 🖼️ **Pexels 配图：** 自动抓取一张超高清的高颜值配图，帮你图像化记忆！
-- 💾 加工完成后，导出一份超级豪华的终极单词数据库！
-
-### 🧠 3. 沉浸背单词测验 (Immersive Flashcard Study)
-检验真理的时刻到了！用科学的“间隔重复”算法来消灭生词：
-- 💡 **[1] 想一想：** 看看词根、同反义词，能回忆起来吗？
-- 📖 **[2] 场景回忆：** 看看例句和场景词。
-- ⌨️ **[3] 拼写大挑战：** 试试自己能不能拼对！
-- 🎤 **[4] 语音打分：** 调用电脑麦克风，测测你的英语发音标不标准！
-- 🍎 **Mac 原生联动：** 遇到不认识的词，直接右键呼出 macOS 苹果自带的系统级原版词典！
+It's a **100% free, public welfare, and open-source** software with zero commercial intent. My goal is to help students like me easily turn any PDF handout into a "Super AI Vocabulary Book" complete with example sentences, pronunciation, and images! 💪
 
 ---
 
-## 💻 怎么开始用？ (How to Start)
+## 🚀 Cool Features
 
-超级简单，有手就会！✋
+This is an **All-in-One** web application that runs entirely in your local browser. Your data stays on your computer—**complete privacy**! 🔒 It works in three simple steps:
 
-1. **下载文件：** 直接把这个项目里的 `Ziyang_Vocab_Master.html` 存到你电脑上。
-2. **双击打开：** 用 Chrome、Edge 或 Safari 浏览器打开它。
-3. **三个页面随意切：** 
-   - 切换到 **Tab 1** 提取 PDF。
-   - 切换到 **Tab 2** 填入你的 AI Key 批量加工单词。
-   - 切换到 **Tab 3** 享受沉浸式背单词体验！🎉
+### 📄 1. PDF Vocabulary Extractor
+Stop typing manually! Just drop your PDF (like GRE 24 Sets) into the app:
+- 🤖 **Auto-Scan:** Automatically extracts target words from the document.
+- 🧹 **Smart Filter:** Removes common "noise" words like "the, and, is".
+- 📥 **Clean Export:** Get a neat CSV list of your custom vocabulary.
+
+### 🤖 2. AI Word Factory
+Once you have your list, let AI do the heavy lifting:
+- ✨ **Gemini AI Magic:** Automatically fetches IPA phonetics, precise definitions, roots, synonyms, antonyms, and even **contextual collocations and example sentences**!
+- 🖼️ **Visual Aids:** Automatically grabs high-quality images from Pexels to help you memorize visually.
+- 💾 **Database Export:** Save everything into a rich, enriched vocabulary database.
+
+### 🧠 3. Immersive Flashcard Study
+Time to master the words! Use scientific spaced-repetition to crush your list:
+- 💡 **[1] Association:** Check the root or synonyms—can you remember it?
+- 📖 **[2] Context:** Review sentences and scene-based usage.
+- ⌨️ **[3] Spelling Challenge:** Test if you can actually spell it correctly.
+- 🎤 **[4] Pronunciation Check:** Use your mic to test your speaking!
+- 🍎 **macOS Integration:** Right-click any word to instantly trigger the native system dictionary!
 
 ---
 
-## 💖 公益与开源 (Public Welfare)
+## 💻 How to Use
 
-我相信，**好的教育工具不应该被高昂的价格墙挡住**。
+It's super simple! ✋
 
-如果你也是一个正在努力背单词的学生，或者是一位想帮学生提高效率的老师，甚至是一个对代码感兴趣的同好，欢迎随便使用、分享甚至魔改这个代码！
+1. **Download:** Save `Ziyang_Vocab_Master.html` to your computer.
+2. **Open:** Double-click to open it in Chrome, Edge, or Safari.
+3. **Navigate:** 
+   - **Tab 1:** Extract words from PDFs.
+   - **Tab 2:** Use your API Key to enrich words with AI.
+   - **Tab 3:** Start your immersive study session! 🎉
 
-让我们一起把背单词变成一件简单又快乐的事情！✨🚀
+---
+
+## 💖 Public Welfare & Open Source
+
+I believe that **great educational tools shouldn't be hidden behind paywalls**. 
+
+If you're a student struggling with vocab, a teacher looking to help your class, or a developer interested in the code, feel free to use, share, and modify this project!
+
+Let's make learning simple and fun again! ✨🚀
